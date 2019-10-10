@@ -1,6 +1,6 @@
 # IBM MQ metrics exporter
 
-[![Build Status](https://travis-ci.com/AATools/mq-metrics-pyclient.svg?branch=master)](https://travis-ci.com/AATools/mq-metrics-pyclient)
+[![Build Status](https://travis-ci.com/AATools/mq-metrics-pyclient.svg?branch=master)](https://travis-ci.com/AATools/mq-metrics-pyclient) [![Coverage Status](https://coveralls.io/repos/github/AATools/mq-metrics-pyclient/badge.svg?branch=master)](https://coveralls.io/github/AATools/mq-metrics-pyclient?branch=master)
 
 This is another python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway). 
 The collected metrics can be explored in Prometheus or Grafana. This client is useful in cases when requiring to collect metrics from old MQ versions.
