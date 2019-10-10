@@ -1,3 +1,6 @@
-discover==0.4.0
-requests==2.22.0
-urllib3==1.25.6
+discover
+requests
+urllib3
+pytest
+pytest-cov
+coveralls
