@@ -42,7 +42,7 @@ For Pushgateway the default port is used (":9091").
 git clone https://github.com/AATools/mq-metrics-pyclient
 cd mq-metrics-pyclient
 chmod u+x ./mq_metrics_client.py
-nohup mq_metrics_client.py &
+nohup ./mq_metrics_client.py &
 ```
 
 After that, you should set up your Prometheus server to collect metrics from Pushgateway (`http://<hostname>:9091/metrics`).
