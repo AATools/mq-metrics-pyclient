@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/AATools/mq-metrics-pyclient.svg?branch=master)](https://travis-ci.com/AATools/mq-metrics-pyclient) [![Coverage Status](https://coveralls.io/repos/github/AATools/mq-metrics-pyclient/badge.svg?branch=master)](https://coveralls.io/github/AATools/mq-metrics-pyclient?branch=master)
 
-This is another python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway). 
+This is another python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway).
 The collected metrics can be explored in Prometheus or Grafana. This client is useful in cases when requiring to collect metrics from old MQ versions.
 
 The metrics are collected using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. So, you need to install `IBM MQ server`.
@@ -14,12 +14,15 @@ Tested for IBM MQ v7.5 and v8.0 and Python 2.6 and 2.7 on Linux.
 By default, metrics are collected every 15 seconds.
 
 The metrics provided by the client:
+
 * `mq_manager_status...` - current status of MQ managers;
 * `mq_listener_status...` - current status of MQ listeners;
 * `mq_channel_status...` - current status of MQ channels;
 * `mq_channel_connection_count...` -  connections counts to the channels;
 * `mq_queue_curdepth...` - current depth of queues;
 * `mq_queue_maxdepth...` - maximum depth of queues.
+
+You can run `MQ metrics pyclient` and [IB metrics pyclient](https://github.com/AATools/ib-metrics-pyclient) together. Metrics from both clients will be sent to the same pushgateway. Conflicts will not arise.
 
 ## Getting Started
 
@@ -53,4 +56,4 @@ The Grafana dashboard visualizes collected metrics.
 
 ## Simple process scheme
 
-![](../images/mq_metrics_pyclient_scheme.jpg?raw=true)
+![mq_metrics_pyclient_scheme](../images/mq_metrics_pyclient_scheme.jpg?raw=true)
