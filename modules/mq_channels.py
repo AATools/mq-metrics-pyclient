@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
 import re
-import os
 from log.logger_client import set_logger
+
 
 logger = set_logger()
 
 
 def get_channels(channels_data):
-    channel_str_regexp = 'CHANNEL\([^)]*\)'
+    channel_str_regexp = r'CHANNEL\([^)]*\)'
     result = re.findall(channel_str_regexp, channels_data)
     return result
 
 
 def extract_channel_name(channel):
-    channel_name_regexp = '\(([^}]+)\)'
+    channel_name_regexp = r'\(([^}]+)\)'
     # Hidden default system channels
-    channel_system_default_regexp = 'SYSTEM.'
+    channel_system_default_regexp = r'SYSTEM.'
     # Hidden default system channels for automatic definition of receiver and server-connection
     match = re.findall(channel_name_regexp, channel)
     channel_name = ''.join(match)
@@ -46,18 +46,18 @@ def get_channel_status(channel_data, labels_data):
             try:
                 if key in labels_data[i]:
                     status_data[i][key] = labels_data[i][key]
-            except IndexError, e:
+            except IndexError as e:
                 logger.error(e)
                 logger.error("Error for key: {0} in status_data: {1}".format(key, labels_data))
     return status_data
 
 
 def format_channel_output(data_to_format):
-    format_list = filter(None, data_to_format.split('\n'))
+    format_list = list(filter(None, data_to_format.split('\n')))
     nested_list = [re.split(r'\s{2,}', element.strip()) for element in format_list]
     flat_list = [item for sublist in nested_list for item in sublist]
-    value_regex = '\(([^}]+)\)'
-    key_regex = '.+?(?=\()'
+    value_regex = r'\(([^}]+)\)'
+    key_regex = r'.+?(?=\()'
     gather = False
     result = []
     date_result = {}

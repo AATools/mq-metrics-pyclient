@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import re
-import os
 from log.logger_client import set_logger
+
 
 logger = set_logger()
 
 
 def get_listeners(listeners_data):
-    default_listener = 'SYSTEM.DEFAULT.LISTENER.TCP'
-    listener_str_regexp = 'LISTENER\(([^)]+)\)'
+    default_listener = r'SYSTEM.DEFAULT.LISTENER.TCP'
+    listener_str_regexp = r'LISTENER\(([^)]+)\)'
     listeners = re.findall(listener_str_regexp, listeners_data)
     # Remove default listener.
     # Comment line below if you use default listener!
@@ -26,14 +26,14 @@ def format_output(data_to_format, method):
     # remove empty list elements and slice status data(elements 4-10),
     # or labels data(elements 4-9), depending on function input
     slice_methods = {'labels': slice(4, 9), 'status': slice(4, 10)}
-    format_list = filter(None, data_to_format.split('\n'))[slice_methods[method]]
+    format_list = list(filter(None, data_to_format.split('\n')))[slice_methods[method]]
     # Remove reduntant whitespaces from every list element and
     # create nested lists, where separator > 2 whitespaces(use regexp)
     nested_list = [re.split(r'\s{2,}', element.strip()) for element in format_list]
     # Collecting into one list
     flat_list = [item for sublist in nested_list for item in sublist]
-    value_regex = '\(([^}]+)\)'
-    key_regex = '.+?(?=\()'
+    value_regex = r'\(([^}]+)\)'
+    key_regex = r'.+?(?=\()'
     value_list = [re.search(value_regex, item).group(1) for item in flat_list]
     key_list = [re.search(key_regex, item).group() for item in flat_list]
     # Return standart dict - key:value

@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import os
 import sys
 import traceback
 import platform
@@ -186,7 +185,7 @@ def main():
                 logger.warning("Pushed only metric for mq_manager!")
     except PrometheusBadResponse as error:
         logger.error(error)
-    except Exception, e:
+    except Exception as e:
         tb = sys.exc_info()[-1]
         stk = traceback.extract_tb(tb, 1)[0]
         logger.error("Function: {0}\n{1}".format(stk, e))

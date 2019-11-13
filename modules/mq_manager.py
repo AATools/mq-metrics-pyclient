@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import re
-import os
 from log.logger_client import set_logger
+
 
 logger = set_logger()
 
 
 def format_output(data_to_format):
-    list_without_brackets = filter(
+    list_without_brackets = list(filter(
         None,
         [value.strip().replace('(', ' ').replace(')', '') for value in data_to_format]
-        )
+        ))
     result_dict = {}
     for values in list_without_brackets:
         name = values.split()[0]
@@ -24,15 +24,15 @@ def format_output(data_to_format):
 
 
 def get_mq_manager_status(mq_manager_data):
-    pattern = "QMNAME"
+    pattern = r"QMNAME"
     result = format_output(mq_manager_data.split(')'))
     return result
 
 
 def get_mq_managers(mq_managers_data):
     mq_managers = []
-    mqmanager_name_regexp = 'QMNAME\(([^)]+)\)'
-    output_list = filter(None, mq_managers_data.split('\n'))
+    mqmanager_name_regexp = r'QMNAME\(([^)]+)\)'
+    output_list = list(filter(None, mq_managers_data.split('\n')))
     for mq_manager in output_list:
         mq_manager_name = re.search(mqmanager_name_regexp, mq_manager).group(1)
         mq_managers.append(mq_manager_name)

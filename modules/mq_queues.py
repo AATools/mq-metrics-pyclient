@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 import re
-import os
 from log.logger_client import set_logger
+
 
 logger = set_logger()
 
 
 def get_queues_labels(queue_labels_data):
-    queue_regexp = 'QUEUE\\(([^)]+)\\)'
-    curdepth_regexp = 'CURDEPTH\\(([^)]+)\\)'
-    maxdepth_regexp = 'MAXDEPTH\\(([^)]+)\\)'
-    queue_type_regexp = 'TYPE\\(([^)]+)\\)'
+    queue_regexp = r'QUEUE\\(([^)]+)\\)'
+    curdepth_regexp = r'CURDEPTH\\(([^)]+)\\)'
+    maxdepth_regexp = r'MAXDEPTH\\(([^)]+)\\)'
+    queue_type_regexp = r'TYPE\\(([^)]+)\\)'
     queues_labels = {}
     for item in queue_labels_data.split('Display Queue details'):
         if not item:
