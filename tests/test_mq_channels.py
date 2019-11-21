@@ -179,7 +179,7 @@ class TestMakeMetricForMqChannelsStatus(unittest.TestCase):
                      'STARTING': 2,
                      'RUNNING': 3,
                      'STOPPED': 6,
-                     '': 6,
+                     '': 0,
                      }
         for status in status_dict:
             status_name = status
