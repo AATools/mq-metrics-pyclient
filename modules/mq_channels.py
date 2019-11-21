@@ -87,7 +87,7 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type, conn_coun
     # Mapping status according to IBM specification:
     # https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.javadoc.doc/WMQJavaClasses/constant-values.html
     status_dict = {
-        '': 0,
+       '': 0,
        'INACTIVE': 0,
        'BINDING': 1,
        'STARTING': 2,
