@@ -1,31 +1,36 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import sys
+import time
 import traceback
 import platform
 import requests
-from modules.mq_manager import (
-     get_mq_manager_status,
-     get_mq_managers,
-     make_metric_for_mq_manager_status
-     )
-from modules.mq_listener import (
-     get_listeners,
-     get_listener_status,
-     make_metric_for_mq_listener_status
-     )
-from modules.mq_queues import get_queues_labels, make_metrics_data_for_queues
-from modules.mq_channels import (
-     get_channel_status,
-     make_metric_for_mq_channels_status,
-     get_channels,
-     extract_channel_name,
-     format_channel_output
-     )
-from log.logger_client import set_logger
 from requests import ConnectionError
 from urllib3.exceptions import ResponseError
-import time
+from modules.mq_manager import (
+    get_mq_manager_status,
+    get_mq_managers,
+    make_metric_for_mq_manager_status
+    )
+from modules.mq_listener import (
+    get_listeners,
+    get_listener_status,
+    make_metric_for_mq_listener_status
+    )
+from modules.mq_queues import (
+    get_queues_labels,
+    make_metrics_data_for_queues,
+    get_queues_labels_monitor,
+    make_metrics_data_for_queues_monitor
+    )
+from modules.mq_channels import (
+    get_channel_status,
+    make_metric_for_mq_channels_status,
+    get_channels,
+    extract_channel_name,
+    format_channel_output
+    )
+from log.logger_client import set_logger
 from modules.mq_api import run_mq_command
 
 
@@ -121,6 +126,12 @@ def get_queues_metrics(mq_manager):
     queues_metrics = make_metrics_data_for_queues(queues_labels, mq_manager)
     return queues_metrics
 
+def get_queues_metrics_monitor(mq_manager):
+    queue_labels_data_monitor = run_mq_command(task='get_queues_monitor', mqm=mq_manager)
+    queues_labels_monitor = get_queues_labels_monitor(queue_labels_data_monitor)
+    queues_metrics_monitor = make_metrics_data_for_queues_monitor(queues_labels_monitor, mq_manager)
+    return queues_metrics_monitor
+
 
 def channels_status(mqm):
     channels = run_mq_command(task='get_channels', mqm=mqm)
@@ -172,11 +183,13 @@ def main():
                 mq_channels = channels_status(mq_manager)
                 mq_channels_metrics = get_mq_channels_metrics(mq_channels, mq_manager)
                 mq_queues_metrics = get_queues_metrics(mq_manager)
-                metric_data = "{0}{1}{2}{3}".format(
+                mq_queues_metrics_monitor = get_queues_metrics_monitor(mq_manager)
+                metric_data = "{0}{1}{2}{3}{4}".format(
                     mq_manager_metrics,
                     mq_listeners_metrics,
                     mq_channels_metrics,
-                    mq_queues_metrics
+                    mq_queues_metrics,
+                    mq_queues_metrics_monitor
                     )
                 put_metric_to_gateway(metric_data, mq_manager)
                 logger.info("All metrics pushed successfully!")
@@ -185,10 +198,10 @@ def main():
                 logger.warning("Pushed only metric for mq_manager!")
     except PrometheusBadResponse as error:
         logger.error(error)
-    except Exception as e:
+    except Exception as err:
         tb = sys.exc_info()[-1]
         stk = traceback.extract_tb(tb, 1)[0]
-        logger.error("Function: {0}\n{1}".format(stk, e))
+        logger.error("Function: {0}\n{1}".format(stk, err))
     logger.info("Script finished in - %s seconds -" % (time.time() - start_time))
 
 
