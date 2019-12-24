@@ -4,13 +4,13 @@ import sys
 import unittest
 from modules.mq_queues import (
     make_metrics_data_for_queues,
-    get_queues_labels,
+    get_queues_labels
     )
 sys.path.append(os.getcwd())
 
 
 class TestGetQueuesLables(unittest.TestCase):
-    def get_queues_labels(self):
+    def test_get_queues_labels(self):
         input_data = 'QUEUE(SYSTEM.DEFAULT.LOCAL.QUEUE) TYPE(QLOCAL)   CURDEPTH(0)  MAXDEPTH(5000)'
         check_data = {'SYSTEM.DEFAULT.LOCAL.QUEUE': {'curdepth': '0',
                                                      'maxdepth': '5000',
@@ -19,7 +19,7 @@ class TestGetQueuesLables(unittest.TestCase):
 
 
 class TestMakeMetricsDataForQueues(unittest.TestCase):
-    def testmake_metrics_data_for_queues(self):
+    def test_make_metrics_data_for_queues(self):
         mq_manager = 'TEST'
         input_data = {'SYSTEM.DEFAULT.LOCAL.QUEUE': {'curdepth': '0',
                                                      'maxdepth': '5000',
