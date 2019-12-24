@@ -9,10 +9,10 @@ logger = set_logger()
 
 
 def get_queues_labels(queue_labels_data):
-    queue_regexp = r'QUEUE\\(([^)]+)\\)'
-    curdepth_regexp = r'CURDEPTH\\(([^)]+)\\)'
-    maxdepth_regexp = r'MAXDEPTH\\(([^)]+)\\)'
-    queue_type_regexp = r'TYPE\\(([^)]+)\\)'
+    queue_regexp = r'QUEUE\(([^)]+)\)'
+    curdepth_regexp = r'CURDEPTH\(([^)]+)\)'
+    maxdepth_regexp = r'MAXDEPTH\(([^)]+)\)'
+    queue_type_regexp = r'TYPE\(([^)]+)\)'
     queues_labels = {}
     for item in queue_labels_data.split('Display Queue details'):
         if not item:
@@ -55,14 +55,14 @@ def make_metrics_data_for_queues(queues_labels, mq_manager):
 
 
 def get_queues_labels_monitor(queue_labels_data):
-    queue_regexp = r'QUEUE\\(([^)]+)\\)'
-    lgettime_regexp = r'LGETTIME\\(([^)]+)\\)'
-    lputtime_regexp = r'LPUTTIME\\(([^)]+)\\)'
-    lgetdate_regexp = r'LGETDATE\\(([^)]+)\\)'
-    lputdate_regexp = r'LPUTDATE\\(([^)]+)\\)'
-    msgage_regexp = r'MSGAGE\\(([^)]+)\\)'
-    qtime_regexp = r'QTIME\\(([^)]+)\\)'
-    monq_regexp = r'MONQ\\(([^)]+)\\)'
+    queue_regexp = r'QUEUE\(([^)]+)\)'
+    lgettime_regexp = r'LGETTIME\(([^)]+)\)'
+    lputtime_regexp = r'LPUTTIME\(([^)]+)\)'
+    lgetdate_regexp = r'LGETDATE\(([^)]+)\)'
+    lputdate_regexp = r'LPUTDATE\(([^)]+)\)'
+    msgage_regexp = r'MSGAGE\(([^)]+)\)'
+    qtime_regexp = r'QTIME\(([^)]+)\)'
+    monq_regexp = r'MONQ\(([^)]+)\)'
     queues_labels_monitor = {}
     for item in queue_labels_data.split('Display queue status details'):
         if not item:
