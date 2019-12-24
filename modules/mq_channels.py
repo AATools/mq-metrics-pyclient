@@ -46,8 +46,8 @@ def get_channel_status(channel_data, labels_data):
             try:
                 if key in labels_data[i]:
                     status_data[i][key] = labels_data[i][key]
-            except IndexError as e:
-                logger.error(e)
+            except IndexError as err:
+                logger.error(err)
                 logger.error("Error for key: {0} in status_data: {1}".format(key, labels_data))
     return status_data
 
