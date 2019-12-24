@@ -10,7 +10,7 @@ sys.path.append(os.getcwd())
 
 
 class TestGetQueuesLables(unittest.TestCase):
-    def get_queues_labels(self):
+    def test_get_queues_labels(self):
         input_data = 'QUEUE(SYSTEM.DEFAULT.LOCAL.QUEUE) TYPE(QLOCAL)   CURDEPTH(0)  MAXDEPTH(5000)'
         check_data = {'SYSTEM.DEFAULT.LOCAL.QUEUE': {'curdepth': '0',
                                                      'maxdepth': '5000',
