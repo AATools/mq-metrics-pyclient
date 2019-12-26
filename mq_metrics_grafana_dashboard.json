@@ -14,7 +14,7 @@
       "type": "grafana",
       "id": "grafana",
       "name": "Grafana",
-      "version": "6.2.2"
+      "version": "6.5.1"
     },
     {
       "type": "panel",
@@ -53,11 +53,12 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1570097691490,
+  "iteration": 1577355160948,
   "links": [],
   "panels": [
     {
       "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1040,6 +1041,7 @@
     },
     {
       "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 1,
         "w": 24,
@@ -1061,12 +1063,14 @@
       "decimals": 1,
       "description": "The panel shows the utilization of application queues.",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
         "y": 23
       },
+      "hiddenSeries": false,
       "id": 10,
       "legend": {
         "alignAsTable": true,
@@ -1088,7 +1092,9 @@
       "linewidth": 3,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": true,
       "pointradius": 2,
       "points": false,
@@ -1099,7 +1105,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}/mq_queue_maxdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*100",
+          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}/mq_queue_maxdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*100",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1180,12 +1186,14 @@
       "decimals": 0,
       "description": "The panel shows the mq_queue_curdepth metric",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
         "y": 31
       },
+      "hiddenSeries": false,
       "id": 14,
       "legend": {
         "alignAsTable": true,
@@ -1207,7 +1215,9 @@
       "linewidth": 3,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -1218,7 +1228,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
+          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1271,11 +1281,460 @@
     },
     {
       "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 39
+      },
+      "id": 24,
+      "panels": [],
+      "title": "Application queues real-time monitoring metrics",
+      "type": "row"
+    },
+    {
+      "columns": [],
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "The panel shows real-time monitoring metrics for application queues.",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 40
+      },
+      "id": 22,
+      "options": {},
+      "pageSize": 8,
+      "showHeader": true,
+      "sort": {
+        "col": 5,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Time",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "Instance",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "instance",
+          "preserveFormat": false,
+          "sanitize": false,
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Queue Manager",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "qmname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Queue",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "queuename",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "The oldest message",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #A",
+          "thresholds": [],
+          "type": "number",
+          "unit": "s"
+        },
+        {
+          "alias": "Last put message time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Value #B",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
+          "alias": "Last get message time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Value #C",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
+          "alias": "QTIME (short term indicator)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #D",
+          "thresholds": [],
+          "type": "number",
+          "unit": "µs"
+        },
+        {
+          "alias": "QTIME (long term indicator)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #E",
+          "thresholds": [],
+          "type": "number",
+          "unit": "µs"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "sum(mq_queue_msgage{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "sum(mq_queue_lput{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*1000) by (qmname,instance,queuename)",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        },
+        {
+          "expr": "sum(mq_queue_lget{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*1000) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "C"
+        },
+        {
+          "expr": "sum(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"short_term\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "D"
+        },
+        {
+          "expr": "sum(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"long_term\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "E"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Application queues real-time monitoring metrics",
+      "transform": "table",
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "decimals": 0,
+      "description": "The panel shows the mq_queue_msgage metric. Only non empty queues.",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 7,
+        "x": 0,
+        "y": 50
+      },
+      "hiddenSeries": false,
+      "id": 26,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 500,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "mq_queue_msgage{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "The oldest messages in application queues ",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "cacheTimeout": null,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "decimals": 0,
+      "description": "The panel shows idelta for mq_queue_qtime metric. Only queues with active operations.",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 17,
+        "x": 7,
+        "y": 50
+      },
+      "hiddenSeries": false,
+      "id": 28,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 500,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pluginVersion": "6.5.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "/\\s(long_term)$/",
+          "dashes": true,
+          "spaceLength": 4,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "idelta(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"short_term\"}[30s])",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}} {{indicator}}",
+          "refId": "A"
+        },
+        {
+          "expr": "idelta(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename !~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"long_term\"}[30s])",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}} {{indicator}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "QTIME metric delta for application queues ",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "µs",
+          "label": "Short term indicator",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "µs",
+          "label": "Long term indicator",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": true,
+        "alignLevel": null
+      }
+    },
+    {
+      "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 60
       },
       "id": 16,
       "panels": [],
@@ -1292,12 +1751,14 @@
       "decimals": 1,
       "description": "The panel shows the utilization of system queues.",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 40
+        "y": 61
       },
+      "hiddenSeries": false,
       "id": 18,
       "legend": {
         "alignAsTable": true,
@@ -1319,7 +1780,9 @@
       "linewidth": 3,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": true,
       "pointradius": 2,
       "points": false,
@@ -1330,7 +1793,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}/mq_queue_maxdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*100",
+          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}/mq_queue_maxdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*100",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1411,12 +1874,14 @@
       "decimals": 0,
       "description": "The panel shows the mq_queue_curdepth metric",
       "fill": 0,
+      "fillGradient": 0,
       "gridPos": {
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 48
+        "y": 69
       },
+      "hiddenSeries": false,
       "id": 20,
       "legend": {
         "alignAsTable": true,
@@ -1438,7 +1903,9 @@
       "linewidth": 3,
       "links": [],
       "nullPointMode": "null as zero",
-      "options": {},
+      "options": {
+        "dataLinks": []
+      },
       "percentage": false,
       "pointradius": 2,
       "points": false,
@@ -1449,7 +1916,7 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
+          "expr": "mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename =~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
           "format": "time_series",
           "instant": false,
           "intervalFactor": 1,
@@ -1499,10 +1966,458 @@
         "align": false,
         "alignLevel": null
       }
+    },
+    {
+      "collapsed": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 77
+      },
+      "id": 36,
+      "panels": [],
+      "title": "System queues real-time monitoring metrics",
+      "type": "row"
+    },
+    {
+      "columns": [],
+      "datasource": "${DS_PROMETHEUS}",
+      "description": "The panel shows real-time monitoring metrics for system queues.",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 10,
+        "w": 24,
+        "x": 0,
+        "y": 78
+      },
+      "id": 30,
+      "options": {},
+      "pageSize": 8,
+      "showHeader": true,
+      "sort": {
+        "col": 5,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Time",
+          "thresholds": [],
+          "type": "hidden",
+          "unit": "short"
+        },
+        {
+          "alias": "Instance",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "link": false,
+          "mappingType": 1,
+          "pattern": "instance",
+          "preserveFormat": false,
+          "sanitize": false,
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Queue Manager",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "qmname",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "Queue",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "queuename",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short"
+        },
+        {
+          "alias": "The oldest message",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #A",
+          "thresholds": [],
+          "type": "number",
+          "unit": "s"
+        },
+        {
+          "alias": "Last put message time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Value #B",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
+          "alias": "Last get message time",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "Value #C",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short"
+        },
+        {
+          "alias": "QTIME (short term indicator)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #D",
+          "thresholds": [],
+          "type": "number",
+          "unit": "µs"
+        },
+        {
+          "alias": "QTIME (long term indicator)",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 0,
+          "mappingType": 1,
+          "pattern": "Value #E",
+          "thresholds": [],
+          "type": "number",
+          "unit": "µs"
+        }
+      ],
+      "targets": [
+        {
+          "expr": "sum(mq_queue_msgage{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "instant": true,
+          "refId": "A"
+        },
+        {
+          "expr": "sum(mq_queue_lput{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*1000) by (qmname,instance,queuename)",
+          "format": "table",
+          "instant": true,
+          "refId": "B"
+        },
+        {
+          "expr": "sum(mq_queue_lget{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}*1000) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "C"
+        },
+        {
+          "expr": "sum(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"short_term\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "D"
+        },
+        {
+          "expr": "sum(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"long_term\"}) by (qmname,instance,queuename)",
+          "format": "table",
+          "hide": false,
+          "instant": true,
+          "refId": "E"
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "System queues real-time monitoring metrics",
+      "transform": "table",
+      "transparent": true,
+      "type": "table"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "decimals": 0,
+      "description": "The panel shows the mq_queue_msgage metric. Only non empty queues.",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 7,
+        "x": 0,
+        "y": 88
+      },
+      "hiddenSeries": false,
+      "id": 32,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 500,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "mq_queue_msgage{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\"}",
+          "format": "time_series",
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}}",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "The oldest messages in system queues ",
+      "tooltip": {
+        "shared": true,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "s",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "none",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": false
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "cacheTimeout": null,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_PROMETHEUS}",
+      "decimals": 0,
+      "description": "The panel shows idelta for mq_queue_qtime metric. Only queues with active operations.",
+      "fill": 0,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 10,
+        "w": 17,
+        "x": 7,
+        "y": 88
+      },
+      "hiddenSeries": false,
+      "id": 34,
+      "legend": {
+        "alignAsTable": false,
+        "avg": false,
+        "current": false,
+        "hideEmpty": true,
+        "hideZero": true,
+        "max": false,
+        "min": false,
+        "rightSide": false,
+        "show": true,
+        "sideWidth": 500,
+        "sort": "current",
+        "sortDesc": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 3,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "options": {
+        "dataLinks": []
+      },
+      "percentage": false,
+      "pluginVersion": "6.5.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [
+        {
+          "alias": "/\\s(long_term)$/",
+          "dashes": true,
+          "spaceLength": 4,
+          "yaxis": 2
+        }
+      ],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "expr": "idelta(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"short_term\"}[30s])",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}} {{indicator}}",
+          "refId": "A"
+        },
+        {
+          "expr": "idelta(mq_queue_qtime{qmname=~\"$qmname\", instance=~\"$instance\", queuename=~\"$queuename\", queuename=~\"SYSTEM.(.*)|AMQ.MQEXPLORER.(.*)\", indicator=\"long_term\"}[30s])",
+          "format": "time_series",
+          "hide": false,
+          "instant": false,
+          "intervalFactor": 1,
+          "legendFormat": "{{qmname}} {{instance}} {{queuename}} {{indicator}}",
+          "refId": "B"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "QTIME metric delta for system queues ",
+      "tooltip": {
+        "shared": false,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "transparent": true,
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 0,
+          "format": "µs",
+          "label": "Short term indicator",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "decimals": 0,
+          "format": "µs",
+          "label": "Long term indicator",
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": true,
+        "alignLevel": null
+      }
     }
   ],
   "refresh": "10s",
-  "schemaVersion": 18,
+  "schemaVersion": 21,
   "style": "dark",
   "tags": [
     "mq-metrics-pyclient"
@@ -1574,6 +2489,28 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": ".*",
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "definition": "label_values(mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", channel=~\"$channel\"}, queuename)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "Queue",
+        "multi": true,
+        "name": "queuename",
+        "options": [],
+        "query": "label_values(mq_queue_curdepth{qmname=~\"$qmname\", instance=~\"$instance\", channel=~\"$channel\"}, queuename)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -1609,5 +2546,5 @@
   "timezone": "browser",
   "title": "MQ Metrics Dashboard",
   "uid": "ZIYCVK2Zz",
-  "version": 8
+  "version": 9
 }

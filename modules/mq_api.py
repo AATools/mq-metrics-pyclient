@@ -12,7 +12,8 @@ def run_mq_command(**kwargs):
         'get_lsstatus': 'dis lsstatus({0})',
         'get_mq_manager_status': 'dspmq -m {0} -o all',
         'get_mq_managers': 'dspmq',
-        'get_queues': 'display queue(*) TYPE(QLOCAL) CURDEPTH MAXDEPTH'
+        'get_queues': 'display queue(*) TYPE(QLOCAL) CURDEPTH MAXDEPTH',
+        'get_queues_monitor': 'display qstatus(*) MONITOR'
     }
     task_is_mq_manager_status = False
     mq_object = ''
