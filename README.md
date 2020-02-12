@@ -7,7 +7,7 @@ The collected metrics can be explored in Prometheus or Grafana. This client is u
 
 The metrics are collected using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. So, you need to install `IBM MQ server`.
 
-Tested for IBM MQ v7.5 and v8.0 and Python 2.6 and 2.7 on Linux.
+Tested for IBM MQ v7.5 and v8.0 and Python 2.6, 2.7, 3.6 on Linux.
 
 ## Collected metrics
 
@@ -49,8 +49,7 @@ For Pushgateway the default port is used (":9091").
 ```bash
 git clone https://github.com/AATools/mq-metrics-pyclient
 cd mq-metrics-pyclient
-chmod u+x ./mq_metrics_client.py
-nohup ./mq_metrics_client.py &
+nohup python3 mq_metrics_client.py &
 ```
 
 After that, you should set up your Prometheus server to collect metrics from Pushgateway (`http://<hostname>:9091/metrics`).
