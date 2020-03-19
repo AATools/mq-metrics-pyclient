@@ -31,7 +31,7 @@ One MQSC command read.\nNo commands have a syntax error.\nAll valid MQSC command
         self.assertEqual(check_data, get_listeners(input_data))
 
 
-class TestGetListenerLables(unittest.TestCase):
+class TestGetListenerLabels(unittest.TestCase):
     def test_get_listener_labels(self):
         input_data = '''5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.\n\n\n     1 : display listener(LISTENER)
@@ -72,7 +72,7 @@ No commands have a syntax error.\nAll valid MQSC commands were processed.\n'''
         method = 'status'
         self.assertEqual(check_data, format_output(input_data, method))
 
-    def test_format_output_lables(self):
+    def test_format_output_labels(self):
         input_data = '''724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.\n\n\n     1 : dis lsstatus (LISTENER)
 AMQ8631: Display listener status details.\n   LISTENER(LISTENER)  STATUS(RUNNING)\n   PID(11111)    STARTDA(2019-09-03) 
@@ -94,7 +94,7 @@ No commands have a syntax error.\nAll valid MQSC commands were processed.\n'''
 
 
 class TestGetListenerStatus(unittest.TestCase):
-    input_lables = '''5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
+    input_labels = '''5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.\n\n\n     1 : display listener(LISTENER)
 AMQ8630: Display listener information details.\n   LISTENER(LISTENER)  CONTROL(QMGR)\n   TRPTYPE(TCP)    PORT(1414) 
 IPADDR( )   BACKLOG(0)\n   DESCR( )  ALTDATE(2013-12-19)\n   ALTTIME(16.34.18) \nOne MQSC command read.
@@ -126,7 +126,7 @@ No commands have a syntax error.\nAll valid MQSC commands were processed.\n''' %
                           'STARTTI': '12.22.31',
                           'STATUS': status_code,
                           'TRPTYPE': 'TCP'}
-            self.assertEqual(check_data, get_listener_status(self.listener, self.mqm, input_data, self.input_lables))
+            self.assertEqual(check_data, get_listener_status(self.listener, self.mqm, input_data, self.input_labels))
 
     def test_get_listener_status_not_found(self):
         input_data = '''5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
@@ -146,7 +146,7 @@ No commands have a syntax error.\nOne valid MQSC command could not be processed.
                       'STARTTI': '',
                       'STATUS': 0,
                       'TRPTYPE': 'TCP'}
-        self.assertEqual(check_data, get_listener_status(self.listener, self.mqm, input_data, self.input_lables))
+        self.assertEqual(check_data, get_listener_status(self.listener, self.mqm, input_data, self.input_labels))
 
 
 class TestMakeMetricForMqListenerStatus(unittest.TestCase):

@@ -13,7 +13,7 @@ from modules.mq_queues import (
 sys.path.append(os.getcwd())
 
 
-class TestGetQueuesLables(unittest.TestCase):
+class TestGetQueuesLabels(unittest.TestCase):
     def test_get_queues_labels(self):
         input_data = 'QUEUE(SYSTEM.DEFAULT.LOCAL.QUEUE) TYPE(QLOCAL)   CURDEPTH(0)  MAXDEPTH(5000)'
         check_data = {'SYSTEM.DEFAULT.LOCAL.QUEUE': {'curdepth': '0',
@@ -33,7 +33,7 @@ mq_queue_curdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", type="Q
         self.assertEqual(check_data, make_metrics_data_for_queues(input_data, mq_manager))
 
 
-class TestGetQueuesLablesMonitor(unittest.TestCase):
+class TestGetQueuesLabelsMonitor(unittest.TestCase):
     def test_get_queues_labels_monitor(self):
         input_data = '''QUEUE(DEV.QUEUE.1) TYPE(QUEUE) CURDEPTH(0) LGETDATE(2019-12-24) 
 LGETTIME(13.00.01) LPUTDATE(2019-12-24) LPUTTIME(13.00.00) MONQ(MEDIUM) 
