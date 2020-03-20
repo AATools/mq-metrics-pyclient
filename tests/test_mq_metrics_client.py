@@ -96,7 +96,11 @@ jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 0\n\
                          input_data['ADMIN.SRVCONN'][0]['LSTMSGTI']),
            self.timestmp(input_data['ADMIN.SRVCONN'][1]['LSTMSGDA'],
                          input_data['ADMIN.SRVCONN'][1]['LSTMSGTI']))
-        self.assertEqual(check_data, get_mq_channels_metrics(input_data, mqm))
+        self.assertEqual(
+            check_data,
+            get_mq_channels_metrics(
+                input_data,
+                mqm))
 
 
 if __name__ == '__main__':

@@ -7,8 +7,7 @@ from modules.mq_listener import (
     format_output,
     make_metric_for_mq_listener_status,
     get_listener_labels,
-    get_listener_status
-    )
+    get_listener_status)
 sys.path.append(os.getcwd())
 
 
@@ -27,8 +26,9 @@ No commands have a syntax error.
 All valid MQSC commands were processed.
 '''
         check_data = ['LISTENER']
-        self.assertEqual(check_data,
-                         get_listeners(input_data))
+        self.assertEqual(
+            check_data,
+            get_listeners(input_data))
 
     def test_get_listeners_for_defaul_listener(self):
         input_data = '''\
@@ -42,8 +42,9 @@ No commands have a syntax error.
 All valid MQSC commands were processed.
 '''
         check_data = []
-        self.assertEqual(check_data,
-                         get_listeners(input_data))
+        self.assertEqual(
+            check_data,
+            get_listeners(input_data))
 
 
 class TestGetListenerLabels(unittest.TestCase):
@@ -71,8 +72,9 @@ All valid MQSC commands were processed.
                       'LISTENER': 'LISTENER',
                       'PORT': '1414',
                       'TRPTYPE': 'TCP'}
-        self.assertEqual(check_data,
-                         get_listener_labels(input_data))
+        self.assertEqual(
+            check_data,
+            get_listener_labels(input_data))
 
 
 class TestFormatOutput(unittest.TestCase):
@@ -105,8 +107,9 @@ All valid MQSC commands were processed.
                       'TRPTYPE': 'TCP'
                       }
         method = 'status'
-        self.assertEqual(check_data,
-                         format_output(input_data, method))
+        self.assertEqual(
+            check_data,
+            format_output(input_data, method))
 
     def test_format_output_labels(self):
         input_data = '''\
@@ -136,8 +139,9 @@ All valid MQSC commands were processed.
                       'TRPTYPE': 'TCP'
                       }
         method = 'labels'
-        self.assertEqual(check_data,
-                         format_output(input_data, method))
+        self.assertEqual(
+            check_data,
+            format_output(input_data, method))
 
 
 class TestGetListenerStatus(unittest.TestCase):
@@ -159,10 +163,9 @@ All valid MQSC commands were processed.
     mqm = 'TEST'
 
     def test_get_listener_status(self):
-        status_dict = {
-            'STOPPED': 0,
-            'RUNNING': 3,
-            }
+        status_dict = {'STOPPED': 0,
+                       'RUNNING': 3,
+                       }
         for status in status_dict:
             status_name = status
             status_code = status_dict[status]
@@ -192,11 +195,13 @@ All valid MQSC commands were processed.
                           'STARTTI': '12.22.31',
                           'STATUS': status_code,
                           'TRPTYPE': 'TCP'}
-            self.assertEqual(check_data,
-                             get_listener_status(self.listener,
-                                                 self.mqm,
-                                                 input_data,
-                                                 self.input_labels))
+            self.assertEqual(
+                check_data,
+                get_listener_status(
+                    self.listener,
+                    self.mqm,
+                    input_data,
+                    self.input_labels))
 
     def test_get_listener_status_not_found(self):
         input_data = '''\
@@ -220,11 +225,13 @@ One valid MQSC command could not be processed.
                       'STARTTI': '',
                       'STATUS': 0,
                       'TRPTYPE': 'TCP'}
-        self.assertEqual(check_data,
-                         get_listener_status(self.listener,
-                                             self.mqm,
-                                             input_data,
-                                             self.input_labels))
+        self.assertEqual(
+            check_data,
+            get_listener_status(
+                self.listener,
+                self.mqm,
+                input_data,
+                self.input_labels))
 
 
 class TestMakeMetricForMqListenerStatus(unittest.TestCase):
@@ -242,16 +249,17 @@ class TestMakeMetricForMqListenerStatus(unittest.TestCase):
                       'STARTDA': '2019-09-03',
                       'STARTTI': '17.47.32',
                       'STATUS': 3,
-                      'TRPTYPE': 'TCP'
-                      }
+                      'TRPTYPE': 'TCP'}
         check_data = '''\
 mq_listener_status{qmname="TEST", listener="LISTENER", pid="11111", \
 ipadd="*", port="1414", trptype="TCP", control="QMGR", backlog="10000", \
 startda="2019-09-03", startti="17.47.32", desc=" "} 3\n'''
-        self.assertEqual(check_data,
-                         make_metric_for_mq_listener_status(self.listener_name,
-                                                            input_data,
-                                                            self.mqm))
+        self.assertEqual(
+            check_data,
+            make_metric_for_mq_listener_status(
+                self.listener_name,
+                input_data,
+                self.mqm))
 
 
 if __name__ == '__main__':

@@ -8,8 +8,7 @@ from modules.mq_queues import (
     make_metrics_data_for_queues,
     get_queues_labels,
     make_metrics_data_for_queues_monitor,
-    get_queues_labels_monitor
-    )
+    get_queues_labels_monitor)
 sys.path.append(os.getcwd())
 
 
@@ -23,8 +22,9 @@ MAXDEPTH(5000)'''
         check_data = {'SYSTEM.DEFAULT.LOCAL.QUEUE': {'curdepth': '0',
                                                      'maxdepth': '5000',
                                                      'type': 'QLOCAL'}}
-        self.assertEqual(check_data,
-                         get_queues_labels(input_data))
+        self.assertEqual(
+            check_data,
+            get_queues_labels(input_data))
 
 
 class TestMakeMetricsDataForQueues(unittest.TestCase):
@@ -38,9 +38,11 @@ mq_queue_maxdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", \
 type="QLOCAL"} 5000
 mq_queue_curdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", \
 type="QLOCAL"} 0\n'''
-        self.assertEqual(check_data,
-                         make_metrics_data_for_queues(input_data,
-                                                      mq_manager))
+        self.assertEqual(
+            check_data,
+            make_metrics_data_for_queues(
+                input_data,
+                mq_manager))
 
 
 class TestGetQueuesLabelsMonitor(unittest.TestCase):
@@ -57,8 +59,9 @@ MSGAGE(0)          QTIME(3231, 3232)'''
                                       'lputdate': '2019-12-24',
                                       'msgage': '0',
                                       'qtime': '3231, 3232'}}
-        self.assertEqual(check_data,
-                         get_queues_labels_monitor(input_data))
+        self.assertEqual(
+            check_data,
+            get_queues_labels_monitor(input_data))
 
 
 class TestMakeMetricsDataForQueuesMonitor(unittest.TestCase):
@@ -88,9 +91,11 @@ mq_queue_qtime{{qmname="TEST", \
 queuename="DEV.QUEUE.1", indicator="long_term"}} 3232
 '''.format(self.timestmp('2019-12-24 13.00.00'),
            self.timestmp('2019-12-24 13.00.01'))
-        self.assertEqual(check_data,
-                         make_metrics_data_for_queues_monitor(input_data,
-                                                              mq_manager))
+        self.assertEqual(
+            check_data,
+            make_metrics_data_for_queues_monitor(
+                input_data,
+                mq_manager))
 
 
 if __name__ == '__main__':
