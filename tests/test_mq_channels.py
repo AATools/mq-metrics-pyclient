@@ -2,6 +2,8 @@
 import os
 import sys
 import unittest
+import time
+import datetime
 from modules.mq_channels import (
     get_channels,
     extract_channel_name,
@@ -346,72 +348,78 @@ All valid MQSC commands were processed.
 
 
 class TestMakeMetricForMqChannelsStatus(unittest.TestCase):
-    mq_manager = 'TEST'
-    channel_data = {'BATCHES': '',
-                    'BUFSRCVD': '7216',
-                    'BUFSSENT': '7215',
-                    'BYTSRCVD': '4894300',
-                    'BYTSSENT': '949752',
-                    'CHANNEL': 'ADMIN.SVRCONN',
-                    'CHLTYPE': 'SVRCONN',
-                    'CHSTADA': '2020-03-19',
-                    'CHSTATI': '18.00.00',
-                    'CONNAME': '127.0.0.1',
-                    'JOBNAME': '000010EC00000007',
-                    'LSTMSGDA': '2020-03-19',
-                    'LSTMSGTI': '18.15.01',
-                    'MSGS': '1510',
-                    'RQMNAME': '',
-                    'STATUS': 'RUNNING',
-                    'SUBSTATE': 'RECEIVE',
-                    'XMITQ': ''}
-    data_templ = '''qmname="TEST", conname="127.0.0.1", substate="RECEIVE", \
-xmitq="", chltype="SVRCONN", chstada="2020-03-19", chstati="18.00.00", \
-rqmname=""'''
-    check_data_temp = ['''mq_channel_status{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 3
-'''.format(data_templ),
-                       '''mq_channel_buffers{{{0}, indicator="buffers_received", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7216
-'''.format(data_templ),
-                       '''mq_channel_buffers{{{0}, indicator="buffers_sent", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7215
-'''.format(data_templ),
-                       '''mq_channel_bytes{{{0}, indicator="bytes_received", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 4894300
-'''.format(data_templ),
-                       '''mq_channel_bytes{{{0}, indicator="bytes_sent", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 949752
-'''.format(data_templ),
-                       '''mq_channel_lmsg{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 1584630901
-'''.format(data_templ),
-                       '''mq_channel_msgs{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 1510
-'''.format(data_templ),
-                       '''mq_channel_batches{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 0
-'''.format(data_templ)]
-    status_data_temp = ['status',
-                        'buffers_received',
-                        'buffers_sent',
-                        'bytes_received',
-                        'bytes_sent',
-                        'lmsg',
-                        'msgs',
-                        'batches']
-
-    def test_temp(self):
-        self.assertEqual(len(self.check_data_temp), len(self.status_data_temp))
+    def timestmp(self, d, t):
+        result = time.mktime(datetime.datetime.strptime(
+            ' '.join([d, t]), "%Y-%m-%d %H.%M.%S").timetuple())
+        return int(result)
 
     def test_make_metric(self):
-        for i in range(len(self.status_data_temp)):
+        mq_manager = 'TEST'
+        channel_data = {'BATCHES': '',
+                        'BUFSRCVD': '7216',
+                        'BUFSSENT': '7215',
+                        'BYTSRCVD': '4894300',
+                        'BYTSSENT': '949752',
+                        'CHANNEL': 'ADMIN.SVRCONN',
+                        'CHLTYPE': 'SVRCONN',
+                        'CHSTADA': '2020-03-19',
+                        'CHSTATI': '18.00.00',
+                        'CONNAME': '127.0.0.1',
+                        'JOBNAME': '000010EC00000007',
+                        'LSTMSGDA': '2020-03-19',
+                        'LSTMSGTI': '18.15.01',
+                        'MSGS': '1510',
+                        'RQMNAME': '',
+                        'STATUS': 'RUNNING',
+                        'SUBSTATE': 'RECEIVE',
+                        'XMITQ': ''}
+        data_templ = '''qmname="TEST", conname="127.0.0.1", substate="RECEIVE", \
+xmitq="", chltype="SVRCONN", chstada="2020-03-19", chstati="18.00.00", \
+rqmname=""'''
+        check_data_temp = ['''mq_channel_status{{{0}, \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 3
+'''.format(data_templ),
+                           '''mq_channel_buffers{{{0}, indicator="buffers_received", \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7216
+'''.format(data_templ),
+                           '''mq_channel_buffers{{{0}, indicator="buffers_sent", \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7215
+'''.format(data_templ),
+                           '''mq_channel_bytes{{{0}, indicator="bytes_received", \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 4894300
+'''.format(data_templ),
+                           '''mq_channel_bytes{{{0}, indicator="bytes_sent", \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 949752
+'''.format(data_templ),
+                           '''mq_channel_lmsg{{{0}, \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} {1}
+'''.format(data_templ,
+           self.timestmp(channel_data['LSTMSGDA'],
+                         channel_data['LSTMSGTI'])),
+                           '''mq_channel_msgs{{{0}, \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 1510
+'''.format(data_templ),
+                           '''mq_channel_batches{{{0}, \
+jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 0
+'''.format(data_templ)]
+        status_data_temp = ['status',
+                            'buffers_received',
+                            'buffers_sent',
+                            'bytes_received',
+                            'bytes_sent',
+                            'lmsg',
+                            'msgs',
+                            'batches']
+        self.assertEqual(
+            len(check_data_temp),
+            len(status_data_temp))
+        for i in range(len(status_data_temp)):
             self.assertEqual(
-                self.check_data_temp[i],
+                check_data_temp[i],
                 make_metric_for_mq_channels_status(
-                    self.channel_data,
-                    self.mq_manager,
-                    self.status_data_temp[i]))
+                    channel_data,
+                    mq_manager,
+                    status_data_temp[i]))
 
 
 if __name__ == '__main__':
