@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
+import subprocess
 
 
 def run_mq_command(**kwargs):
     command_mapping = {
         'get_channels': 'display channel (*)',
-        'get_chstatus': 'dis chstatus({0})',
+        'get_chstatus': 'display chstatus({0}) BATCHES BUFSRCVD BUFSSENT BYTSRCVD BYTSSENT CHSTADA CHSTATI JOBNAME LSTMSGDA LSTMSGTI MSGS',
         'get_channel': 'display channel({0})',
         'get_listeners': 'display listener(*)',
         'get_listener': 'display listener({0})',
-        'get_lsstatus': 'dis lsstatus({0})',
+        'get_lsstatus': 'display lsstatus({0})',
         'get_mq_manager_status': 'dspmq -m {0} -o all',
         'get_mq_managers': 'dspmq',
         'get_queues': 'display queue(*) TYPE(QLOCAL) CURDEPTH MAXDEPTH',
@@ -35,5 +35,6 @@ def run_mq_command(**kwargs):
         command = mq_command
     if task_is_mq_manager_status:
         command = mq_command.format(mq_manager)
-    output = os.popen(command).read()
+    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    output = proc.communicate()[0]
     return output

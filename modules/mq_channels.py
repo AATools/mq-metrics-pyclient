@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import re
+import time
+import datetime
 from log.logger_client import set_logger
 
 
@@ -27,9 +29,20 @@ def extract_channel_name(channel):
 
 def get_template():
     status_data_template = {
+        'BATCHES': '',
+        'BUFSRCVD': '',
+        'BUFSSENT': '',
+        'BYTSRCVD': '',
+        'BYTSSENT': '',
         'CHANNEL': '',
         'CHLTYPE': '',
+        'CHSTADA': '',
+        'CHSTATI': '',
         'CONNAME': '',
+        'JOBNAME': '',
+        'LSTMSGDA': '',
+        'LSTMSGTI': '',
+        'MSGS': '',
         'RQMNAME': '',
         'XMITQ': '',
         'SUBSTATE': '',
@@ -81,47 +94,145 @@ def format_channel_output(data_to_format):
     return result
 
 
-def make_metric_for_mq_channels_status(channel_data, mqm, metric_type, conn_count=0):
+def check_empty_value(value):
+    try:
+        value = int(value)
+    except ValueError:
+        value = '0'
+    return int(value)
+
+
+def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
     metric_name = 'mq_channel_{0}'.format(metric_type)
+    metric_name_buffers = 'mq_channel_{0}'.format('buffers')
+    metric_name_bytes = 'mq_channel_{0}'.format('bytes')
+    value_lmsg = ' '.join([channel_data['LSTMSGDA'], channel_data['LSTMSGTI']])
+    try:
+        metric_value_lmsg = time.mktime(datetime.datetime.strptime(value_lmsg, "%Y-%m-%d %H.%M.%S").timetuple())
+    except ValueError:
+        metric_value_lmsg = ''
     channel_name = channel_data['CHANNEL']
     # Mapping status according to IBM specification:
     # https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_9.0.0/com.ibm.mq.javadoc.doc/WMQJavaClasses/constant-values.html
     status_dict = {
-       '': 0,
-       'INACTIVE': 0,
-       'BINDING': 1,
-       'STARTING': 2,
-       'RUNNING': 3,
-       'STOPPING': 4,
-       'RETRYING': 5,
-       'STOPPED': 6,
-       'REQUESTING': 7,
-       'PAUSED': 8,
-       'DISCONNECTED': 9,
-       'INITIALIZING': 13,
-       'SWITCHING': 14
-       }
+        '': 0,
+        'INACTIVE': 0,
+        'BINDING': 1,
+        'STARTING': 2,
+        'RUNNING': 3,
+        'STOPPING': 4,
+        'RETRYING': 5,
+        'STOPPED': 6,
+        'REQUESTING': 7,
+        'PAUSED': 8,
+        'DISCONNECTED': 9,
+        'INITIALIZING': 13,
+        'SWITCHING': 14
+        }
     metric_type_dict = {
-        "connection_count": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", rqmname="%s", channel="%s"} %d\n' % (
+        "status": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
             metric_name,
             mqm,
             channel_data['CONNAME'],
             channel_data['SUBSTATE'],
             channel_data['XMITQ'],
             channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
             channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
             channel_name,
-            conn_count),
-        "status": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", rqmname="%s", channel="%s"} %d\n' % (
+            status_dict[channel_data['STATUS']]),
+        "buffers_received": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="buffers_received", jobname="%s", channel="%s"} %d\n' % (
+            metric_name_buffers,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['BUFSRCVD'])),
+        "buffers_sent": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="buffers_sent", jobname="%s", channel="%s"} %d\n' % (
+            metric_name_buffers,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['BUFSSENT'])),
+        "bytes_received": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="bytes_received", jobname="%s", channel="%s"} %d\n' % (
+            metric_name_bytes,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['BYTSRCVD'])),
+        "bytes_sent": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="bytes_sent", jobname="%s", channel="%s"} %d\n' % (
+            metric_name_bytes,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['BYTSSENT'])),
+        "lmsg": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
             metric_name,
             mqm,
             channel_data['CONNAME'],
             channel_data['SUBSTATE'],
             channel_data['XMITQ'],
             channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
             channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
             channel_name,
-            status_dict[channel_data['STATUS']]
-            )
+            check_empty_value(metric_value_lmsg)),
+        "msgs": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+            metric_name,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['MSGS'])),
+        "batches": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+            metric_name,
+            mqm,
+            channel_data['CONNAME'],
+            channel_data['SUBSTATE'],
+            channel_data['XMITQ'],
+            channel_data['CHLTYPE'],
+            channel_data['CHSTADA'],
+            channel_data['CHSTATI'],
+            channel_data['RQMNAME'],
+            channel_data['JOBNAME'],
+            channel_name,
+            check_empty_value(channel_data['BATCHES']))
     }
     return metric_type_dict[metric_type]

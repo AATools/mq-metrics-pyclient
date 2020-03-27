@@ -101,20 +101,58 @@ def get_mq_listeners_metrics(listeners, mq_manager):
 def get_mq_channels_metrics(mq_channels, mq_manager):
     prometheus_data_list = []
     for channels in mq_channels:
-        for channel in channels:
-            channel_data, conn_count = channel
-            metric_data_conn = make_metric_for_mq_channels_status(
-                channel_data,
-                mq_manager,
-                'connection_count',
-                conn_count
-                )
+        for channel_data in mq_channels[channels]:
             metric_data_stat = make_metric_for_mq_channels_status(
                 channel_data,
                 mq_manager,
                 'status'
                 )
-            prometheus_data_list.append("{0}{1}".format(metric_data_conn, metric_data_stat))
+            if not channel_data['STATUS']:
+                prometheus_data_list.append("{0}".format(metric_data_stat))
+            else:
+                metric_data_buffers_received = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'buffers_received'
+                    )
+                metric_data_buffers_sent = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'buffers_sent'
+                    )
+                metric_data_bytes_received = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'bytes_received'
+                    )
+                metric_data_bytes_sent = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'bytes_sent'
+                    )
+                metric_data_lmsg = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'lmsg'
+                    )
+                metric_data_msgs = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'msgs'
+                    )
+                metric_data_batches = make_metric_for_mq_channels_status(
+                    channel_data,
+                    mq_manager,
+                    'batches'
+                    )
+                prometheus_data_list.append("{0}{1}{2}{3}{4}{5}{6}{7}".format(metric_data_stat,
+                                                                           metric_data_buffers_received,
+                                                                           metric_data_buffers_sent,
+                                                                           metric_data_bytes_received,
+                                                                           metric_data_bytes_sent,
+                                                                           metric_data_lmsg,
+                                                                           metric_data_msgs,
+                                                                           metric_data_batches))
     prometheus_data_str = ''.join(prometheus_data_list)
     return prometheus_data_str
 
@@ -157,15 +195,7 @@ def channels_status(mqm):
                 labels_data = format_channel_output(channel_data)
             channel_status = get_channel_status(channel_data, labels_data)
             mq_channels_status[channel_name] = channel_status
-    result = []
-    for channel_name, channel_labels in mq_channels_status.items():
-        middle_result = []
-        for channel in channel_labels:
-            count = channel_labels.count(channel)
-            if (channel, count) not in middle_result:
-                middle_result.append((channel, count))
-        result.append(middle_result)
-    return result
+    return mq_channels_status
 
 
 def main():
