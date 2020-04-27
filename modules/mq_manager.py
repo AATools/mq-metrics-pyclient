@@ -9,8 +9,7 @@ logger = set_logger()
 def format_output(data_to_format):
     list_without_brackets = list(filter(
         None,
-        [value.strip().replace('(', ' ').replace(')', '') for value in data_to_format]
-        ))
+        [value.strip().replace('(', ' ').replace(')', '') for value in data_to_format]))
     result_dict = {}
     for values in list_without_brackets:
         name = values.split()[0]
@@ -24,7 +23,6 @@ def format_output(data_to_format):
 
 
 def get_mq_manager_status(mq_manager_data):
-    pattern = r"QMNAME"
     result = format_output(mq_manager_data.split(')'))
     return result
 
@@ -42,14 +40,15 @@ def get_mq_managers(mq_managers_data):
 def make_metric_for_mq_manager_status(mq_manager_status_data):
     metric_name = 'mq_manager_status'
     # Unpack tags
-    metric_data = '%s{default="%s", instname="%s", instpath="%s", instver="%s", qmname="%s", standby="%s"} %d\n' % (
-            metric_name,
-            mq_manager_status_data["DEFAULT"],
-            mq_manager_status_data["INSTNAME"],
-            mq_manager_status_data["INSTPATH"],
-            mq_manager_status_data["INSTVER"],
-            mq_manager_status_data["QMNAME"],
-            mq_manager_status_data["STANDBY"],
-            mq_manager_status_data["STATUS"]
-            )
+    metric_data = '{0}\n{1}\n{2}{{default="{3}", instname="{4}", instpath="{5}", instver="{6}", qmname="{7}", standby="{8}"}} {9}\n'.format(
+        '# HELP {0} Current status of MQ manager.'.format(metric_name),
+        '# TYPE {0} gauge'.format(metric_name),
+        metric_name,
+        mq_manager_status_data["DEFAULT"],
+        mq_manager_status_data["INSTNAME"],
+        mq_manager_status_data["INSTPATH"],
+        mq_manager_status_data["INSTVER"],
+        mq_manager_status_data["QMNAME"],
+        mq_manager_status_data["STANDBY"],
+        mq_manager_status_data["STATUS"])
     return metric_data, mq_manager_status_data["STATUS"]

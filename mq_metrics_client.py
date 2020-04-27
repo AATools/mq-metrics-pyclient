@@ -9,26 +9,22 @@ from urllib3.exceptions import ResponseError
 from modules.mq_manager import (
     get_mq_manager_status,
     get_mq_managers,
-    make_metric_for_mq_manager_status
-    )
+    make_metric_for_mq_manager_status)
 from modules.mq_listener import (
     get_listeners,
     get_listener_status,
-    make_metric_for_mq_listener_status
-    )
+    make_metric_for_mq_listener_status)
 from modules.mq_queues import (
     get_queues_labels,
     make_metrics_data_for_queues,
     get_queues_labels_monitor,
-    make_metrics_data_for_queues_monitor
-    )
+    make_metrics_data_for_queues_monitor)
 from modules.mq_channels import (
     get_channel_status,
     make_metric_for_mq_channels_status,
     get_channels,
     extract_channel_name,
-    format_channel_output
-    )
+    format_channel_output)
 from log.logger_client import set_logger
 from modules.mq_api import run_mq_command
 
@@ -62,10 +58,7 @@ def get_mq_manager_metrics(mq_manager):
     metric_data, status = make_metric_for_mq_manager_status(mqm_status_data)
     if status != 1:
         logger.warning("The status of mq_manager - {0} is {1} !\n \
-                        Other metrics will not be collected!".format(
-                            mq_manager,
-                            status
-                            ))
+                        Other metrics will not be collected!".format(mq_manager, status))
     return metric_data, status
 
 
@@ -75,24 +68,20 @@ def get_mq_listeners_metrics(listeners, mq_manager):
         listener_data = run_mq_command(
             task='get_lsstatus',
             mqm=mq_manager,
-            listener=listener
-            )
+            listener=listener)
         listener_labels = run_mq_command(
             task='get_listener',
             mqm=mq_manager,
-            listener=listener
-            )
+            listener=listener)
         listener_status = get_listener_status(
             listener_name=listener,
             mqm=mq_manager,
             listener_data=listener_data,
-            listener_labels=listener_labels
-            )
+            listener_labels=listener_labels)
         metric_data = make_metric_for_mq_listener_status(
             listener,
             listener_status,
-            mq_manager
-            )
+            mq_manager)
         prometheus_data_list.append("{0}".format(metric_data))
     prometheus_data_str = ''.join(prometheus_data_list)
     return prometheus_data_str
@@ -105,54 +94,47 @@ def get_mq_channels_metrics(mq_channels, mq_manager):
             metric_data_stat = make_metric_for_mq_channels_status(
                 channel_data,
                 mq_manager,
-                'status'
-                )
+                'status')
             if not channel_data['STATUS']:
                 prometheus_data_list.append("{0}".format(metric_data_stat))
             else:
                 metric_data_buffers_received = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'buffers_received'
-                    )
+                    'buffers_received')
                 metric_data_buffers_sent = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'buffers_sent'
-                    )
+                    'buffers_sent')
                 metric_data_bytes_received = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'bytes_received'
-                    )
+                    'bytes_received')
                 metric_data_bytes_sent = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'bytes_sent'
-                    )
+                    'bytes_sent')
                 metric_data_lmsg = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'lmsg'
-                    )
+                    'lmsg')
                 metric_data_msgs = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'msgs'
-                    )
+                    'msgs')
                 metric_data_batches = make_metric_for_mq_channels_status(
                     channel_data,
                     mq_manager,
-                    'batches'
-                    )
-                prometheus_data_list.append("{0}{1}{2}{3}{4}{5}{6}{7}".format(metric_data_stat,
-                                                                           metric_data_buffers_received,
-                                                                           metric_data_buffers_sent,
-                                                                           metric_data_bytes_received,
-                                                                           metric_data_bytes_sent,
-                                                                           metric_data_lmsg,
-                                                                           metric_data_msgs,
-                                                                           metric_data_batches))
+                    'batches')
+                prometheus_data_list.append('{0}{1}{2}{3}{4}{5}{6}{7}'.format(
+                    metric_data_stat,
+                    metric_data_buffers_received,
+                    metric_data_buffers_sent,
+                    metric_data_bytes_received,
+                    metric_data_bytes_sent,
+                    metric_data_lmsg,
+                    metric_data_msgs,
+                    metric_data_batches))
     prometheus_data_str = ''.join(prometheus_data_list)
     return prometheus_data_str
 
@@ -162,6 +144,7 @@ def get_queues_metrics(mq_manager):
     queues_labels = get_queues_labels(queue_labels_data)
     queues_metrics = make_metrics_data_for_queues(queues_labels, mq_manager)
     return queues_metrics
+
 
 def get_queues_metrics_monitor(mq_manager):
     queue_labels_data_monitor = run_mq_command(task='get_queues_monitor', mqm=mq_manager)
@@ -180,16 +163,14 @@ def channels_status(mqm):
             channel_data = run_mq_command(
                 task='get_chstatus',
                 mqm=mqm,
-                channel=channel_name
-                )
+                channel=channel_name)
             labels_data = []
             stop_flag = "not found"
             if stop_flag in channel_data:
                 channel_labels = run_mq_command(
                     task='get_channel',
                     mqm=mqm,
-                    channel=channel_name
-                    )
+                    channel=channel_name)
                 labels_data = format_channel_output(channel_labels)
             else:
                 labels_data = format_channel_output(channel_data)
@@ -218,8 +199,7 @@ def main():
                     mq_listeners_metrics,
                     mq_channels_metrics,
                     mq_queues_metrics,
-                    mq_queues_metrics_monitor
-                    )
+                    mq_queues_metrics_monitor)
                 put_metric_to_gateway(metric_data, mq_manager)
                 logger.info("All metrics pushed successfully!")
             else:

@@ -34,10 +34,12 @@ class TestMakeMetricsDataForQueues(unittest.TestCase):
                                                      'maxdepth': '5000',
                                                      'type': 'QLOCAL'}}
         check_data = '''\
-mq_queue_maxdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", \
-type="QLOCAL"} 5000
-mq_queue_curdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", \
-type="QLOCAL"} 0\n'''
+# HELP mq_queue_maxdepth Maximum depth of queue.
+# TYPE mq_queue_maxdepth gauge
+mq_queue_maxdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", type="QLOCAL"} 5000
+# HELP mq_queue_curdepth Current depth of queue.
+# TYPE mq_queue_curdepth gauge
+mq_queue_curdepth{qmname="TEST", queuename="SYSTEM.DEFAULT.LOCAL.QUEUE", type="QLOCAL"} 0\n'''
         self.assertEqual(
             check_data,
             make_metrics_data_for_queues(
@@ -79,16 +81,21 @@ class TestMakeMetricsDataForQueuesMonitor(unittest.TestCase):
                                       'msgage': '0',
                                       'qtime': '3231, 3232'}}
         check_data = '''\
-mq_queue_msgage{{qmname="TEST", \
-queuename="DEV.QUEUE.1"}} 0
-mq_queue_lput{{qmname="TEST", \
-queuename="DEV.QUEUE.1"}} {0}
-mq_queue_lget{{qmname="TEST", \
-queuename="DEV.QUEUE.1"}} {1}
-mq_queue_qtime{{qmname="TEST", \
-queuename="DEV.QUEUE.1", indicator="short_term"}} 3231
-mq_queue_qtime{{qmname="TEST", \
-queuename="DEV.QUEUE.1", indicator="long_term"}} 3232
+# HELP mq_queue_msgage Age of the oldest message on the queue.
+# TYPE mq_queue_msgage gauge
+mq_queue_msgage{{qmname="TEST", queuename="DEV.QUEUE.1"}} 0
+# HELP mq_queue_lput Timestamp on which the last message was put to the queue.
+# TYPE mq_queue_lput gauge
+mq_queue_lput{{qmname="TEST", queuename="DEV.QUEUE.1"}} {0}
+# HELP mq_queue_lget Timestamp on which the last message was retrieved from the queue.
+# TYPE mq_queue_lget gauge
+mq_queue_lget{{qmname="TEST", queuename="DEV.QUEUE.1"}} {1}
+# HELP mq_queue_qtime Interval between messages being put on the queue and then being destructively read.
+# TYPE mq_queue_qtime gauge
+mq_queue_qtime{{qmname="TEST", queuename="DEV.QUEUE.1", indicator="short_term"}} 3231
+# HELP mq_queue_qtime Interval between messages being put on the queue and then being destructively read.
+# TYPE mq_queue_qtime gauge
+mq_queue_qtime{{qmname="TEST", queuename="DEV.QUEUE.1", indicator="long_term"}} 3232
 '''.format(self.timestmp('2019-12-24 13.00.00'),
            self.timestmp('2019-12-24 13.00.01'))
         self.assertEqual(

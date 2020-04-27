@@ -45,14 +45,12 @@ def get_listener_status(
         listener_name=None,
         mqm=None,
         listener_data=None,
-        listener_labels=None
-        ):
+        listener_labels=None):
     status_dict = {
         'STOPPED': 0,
         'STOPING': 1,
         'STARTING': 2,
-        'RUNNING': 3,
-        }
+        'RUNNING': 3}
     stop_flag = "not found"
     if stop_flag in listener_data:
         labels_data = get_listener_labels(listener_labels)
@@ -68,20 +66,21 @@ def get_listener_status(
 
 def make_metric_for_mq_listener_status(listener_name, mq_listener_status_data, mqm):
     metric_name = 'mq_listener_status'
-    # Unpack tags
-    metric_data = '%s{qmname="%s", listener="%s", pid="%s", ipadd="%s", port="%s", trptype="%s", control="%s", backlog="%s", startda="%s", startti="%s", desc="%s"} %d\n' % (
-            metric_name,
-            mqm,
-            mq_listener_status_data["LISTENER"],
-            mq_listener_status_data["PID"],
-            mq_listener_status_data["IPADDR"],
-            mq_listener_status_data["PORT"],
-            mq_listener_status_data["TRPTYPE"],
-            mq_listener_status_data["CONTROL"],
-            mq_listener_status_data["BACKLOG"],
-            mq_listener_status_data["STARTDA"],
-            mq_listener_status_data["STARTTI"],
-            mq_listener_status_data["DESCR"],
-            mq_listener_status_data["STATUS"],
-            )
+    metric_data = '{0}\n{1}\n{2}{{qmname="{3}", listener="{4}", pid="{5}", ipadd="{6}", port="{7}", trptype="{8}", \
+control="{9}", backlog="{10}", startda="{11}", startti="{12}", desc="{13}"}} {14}\n'.format(
+        '# HELP {0} Current status of MQ listener.'.format(metric_name),
+        '# TYPE {0} gauge'.format(metric_name),
+        metric_name,
+        mqm,
+        mq_listener_status_data["LISTENER"],
+        mq_listener_status_data["PID"],
+        mq_listener_status_data["IPADDR"],
+        mq_listener_status_data["PORT"],
+        mq_listener_status_data["TRPTYPE"],
+        mq_listener_status_data["CONTROL"],
+        mq_listener_status_data["BACKLOG"],
+        mq_listener_status_data["STARTDA"],
+        mq_listener_status_data["STARTTI"],
+        mq_listener_status_data["DESCR"],
+        mq_listener_status_data["STATUS"])
     return metric_data

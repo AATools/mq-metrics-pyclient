@@ -90,9 +90,11 @@ class TestMakeMetricForMqManagerStatus(unittest.TestCase):
                       'STANDBY': 'Not permitted',
                       'STATUS': 1}
         check_data = ('''\
+# HELP mq_manager_status Current status of MQ manager.
+# TYPE mq_manager_status gauge
 mq_manager_status{default="yes", instname="Installation1", \
 instpath="/opt/mqm", instver="7.5.0.1", qmname="TEST", \
-standby="Not permitted"} 1\n''', 1)
+standby="Not permitted"} 1\n''', int(1))
         self.assertEqual(
             check_data,
             make_metric_for_mq_manager_status(input_data))

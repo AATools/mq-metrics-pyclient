@@ -35,6 +35,10 @@ def run_mq_command(**kwargs):
         command = mq_command
     if task_is_mq_manager_status:
         command = mq_command.format(mq_manager)
-    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    proc = subprocess.Popen(command,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            universal_newlines=True)
     output = proc.communicate()[0]
     return output

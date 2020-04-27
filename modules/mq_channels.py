@@ -18,7 +18,8 @@ def extract_channel_name(channel):
     channel_name_regexp = r'\(([^}]+)\)'
     # Hidden default system channels
     channel_system_default_regexp = r'SYSTEM.'
-    # Hidden default system channels for automatic definition of receiver and server-connection
+    # Hidden default system channels for automatic definition of receiver
+    # and server-connection
     match = re.findall(channel_name_regexp, channel)
     channel_name = ''.join(match)
     if not (re.search(channel_system_default_regexp, channel_name)):
@@ -46,8 +47,7 @@ def get_template():
         'RQMNAME': '',
         'XMITQ': '',
         'SUBSTATE': '',
-        'STATUS': ''
-        }
+        'STATUS': ''}
     return status_data_template
 
 
@@ -61,7 +61,9 @@ def get_channel_status(channel_data, labels_data):
                     status_data[i][key] = labels_data[i][key]
             except IndexError as err:
                 logger.error(err)
-                logger.error("Error for key: {0} in status_data: {1}".format(key, labels_data))
+                logger.error("Error for key: {0} in status_data: {1}".format(
+                    key,
+                    labels_data))
     return status_data
 
 
@@ -127,10 +129,12 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
         'PAUSED': 8,
         'DISCONNECTED': 9,
         'INITIALIZING': 13,
-        'SWITCHING': 14
-        }
+        'SWITCHING': 14}
     metric_type_dict = {
-        "status": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+        "status": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Current status of MQ channel.'.format(metric_name),
+            '# TYPE {0} gauge'.format(metric_name),
             metric_name,
             mqm,
             channel_data['CONNAME'],
@@ -143,7 +147,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             status_dict[channel_data['STATUS']]),
-        "buffers_received": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="buffers_received", jobname="%s", channel="%s"} %d\n' % (
+        "buffers_received": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", indicator="buffers_received", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of transmission buffers received and sent.'.format(metric_name_buffers),
+            '# TYPE {0} counter'.format(metric_name_buffers),
             metric_name_buffers,
             mqm,
             channel_data['CONNAME'],
@@ -156,7 +163,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(channel_data['BUFSRCVD'])),
-        "buffers_sent": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="buffers_sent", jobname="%s", channel="%s"} %d\n' % (
+        "buffers_sent": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", indicator="buffers_sent", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of transmission buffers received and sent.'.format(metric_name_buffers),
+            '# TYPE {0} counter'.format(metric_name_buffers),
             metric_name_buffers,
             mqm,
             channel_data['CONNAME'],
@@ -169,7 +179,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(channel_data['BUFSSENT'])),
-        "bytes_received": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="bytes_received", jobname="%s", channel="%s"} %d\n' % (
+        "bytes_received": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", indicator="bytes_received", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of bytes received and sent during this session.'.format(metric_name_bytes),
+            '# TYPE {0} counter'.format(metric_name_bytes),
             metric_name_bytes,
             mqm,
             channel_data['CONNAME'],
@@ -182,7 +195,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(channel_data['BYTSRCVD'])),
-        "bytes_sent": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", indicator="bytes_sent", jobname="%s", channel="%s"} %d\n' % (
+        "bytes_sent": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", indicator="bytes_sent", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of bytes received and sent during this session.'.format(metric_name_bytes),
+            '# TYPE {0} counter'.format(metric_name_bytes),
             metric_name_bytes,
             mqm,
             channel_data['CONNAME'],
@@ -195,7 +211,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(channel_data['BYTSSENT'])),
-        "lmsg": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+        "lmsg": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Timestamp on which the last message was sent or MQI call was handled.'.format(metric_name),
+            '# TYPE {0} gauge'.format(metric_name),
             metric_name,
             mqm,
             channel_data['CONNAME'],
@@ -208,7 +227,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(metric_value_lmsg)),
-        "msgs": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+        "msgs": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of messages sent or received during this session.'.format(metric_name),
+            '# TYPE {0} counter'.format(metric_name),
             metric_name,
             mqm,
             channel_data['CONNAME'],
@@ -221,7 +243,10 @@ def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
             channel_data['JOBNAME'],
             channel_name,
             check_empty_value(channel_data['MSGS'])),
-        "batches": '%s{qmname="%s", conname="%s", substate="%s", xmitq="%s", chltype="%s", chstada="%s", chstati="%s", rqmname="%s", jobname="%s", channel="%s"} %d\n' % (
+        "batches": '{0}\n{1}\n{2}{{qmname="{3}", conname="{4}", substate="{5}", xmitq="{6}", chltype="{7}", \
+chstada="{8}", chstati="{9}", rqmname="{10}", jobname="{11}", channel="{12}"}} {13}\n'.format(
+            '# HELP {0} Number of completed batches during this session.'.format(metric_name),
+            '# TYPE {0} counter'.format(metric_name),
             metric_name,
             mqm,
             channel_data['CONNAME'],

@@ -373,34 +373,42 @@ class TestMakeMetricForMqChannelsStatus(unittest.TestCase):
                         'STATUS': 'RUNNING',
                         'SUBSTATE': 'RECEIVE',
                         'XMITQ': ''}
-        data_templ = '''qmname="TEST", conname="127.0.0.1", substate="RECEIVE", \
-xmitq="", chltype="SVRCONN", chstada="2020-03-19", chstati="18.00.00", \
-rqmname=""'''
-        check_data_temp = ['''mq_channel_status{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 3
-'''.format(data_templ),
-                           '''mq_channel_buffers{{{0}, indicator="buffers_received", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7216
-'''.format(data_templ),
-                           '''mq_channel_buffers{{{0}, indicator="buffers_sent", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7215
-'''.format(data_templ),
-                           '''mq_channel_bytes{{{0}, indicator="bytes_received", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 4894300
-'''.format(data_templ),
-                           '''mq_channel_bytes{{{0}, indicator="bytes_sent", \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 949752
-'''.format(data_templ),
-                           '''mq_channel_lmsg{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} {1}
+        data_templ = '''qmname="TEST", conname="127.0.0.1", substate="RECEIVE", xmitq="", chltype="SVRCONN", \
+chstada="2020-03-19", chstati="18.00.00", rqmname=""'''
+        check_data_temp = ['''\
+# HELP mq_channel_status Current status of MQ channel.
+# TYPE mq_channel_status gauge
+mq_channel_status{{{0}, jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 3
+'''.format(data_templ), '''\
+# HELP mq_channel_buffers Number of transmission buffers received and sent.
+# TYPE mq_channel_buffers counter
+mq_channel_buffers{{{0}, indicator="buffers_received", jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7216
+'''.format(data_templ), '''\
+# HELP mq_channel_buffers Number of transmission buffers received and sent.
+# TYPE mq_channel_buffers counter
+mq_channel_buffers{{{0}, indicator="buffers_sent", jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 7215
+'''.format(data_templ), '''\
+# HELP mq_channel_bytes Number of bytes received and sent during this session.
+# TYPE mq_channel_bytes counter
+mq_channel_bytes{{{0}, indicator="bytes_received", jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 4894300
+'''.format(data_templ), '''\
+# HELP mq_channel_bytes Number of bytes received and sent during this session.
+# TYPE mq_channel_bytes counter
+mq_channel_bytes{{{0}, indicator="bytes_sent", jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 949752
+'''.format(data_templ), '''\
+# HELP mq_channel_lmsg Timestamp on which the last message was sent or MQI call was handled.
+# TYPE mq_channel_lmsg gauge
+mq_channel_lmsg{{{0}, jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} {1}
 '''.format(data_templ,
            self.timestmp(channel_data['LSTMSGDA'],
-                         channel_data['LSTMSGTI'])),
-                           '''mq_channel_msgs{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 1510
-'''.format(data_templ),
-                           '''mq_channel_batches{{{0}, \
-jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 0
+                         channel_data['LSTMSGTI'])), '''\
+# HELP mq_channel_msgs Number of messages sent or received during this session.
+# TYPE mq_channel_msgs counter
+mq_channel_msgs{{{0}, jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 1510
+'''.format(data_templ), '''\
+# HELP mq_channel_batches Number of completed batches during this session.
+# TYPE mq_channel_batches counter
+mq_channel_batches{{{0}, jobname="000010EC00000007", channel="ADMIN.SVRCONN"}} 0
 '''.format(data_templ)]
         status_data_temp = ['status',
                             'buffers_received',

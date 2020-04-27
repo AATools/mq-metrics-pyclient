@@ -25,8 +25,7 @@ def get_queues_labels(queue_labels_data):
             queues_labels[queue.group(1)] = {
                 'curdepth': curdepth.group(1),
                 'maxdepth': maxdepth.group(1),
-                'type': queue_type.group(1)
-                }
+                'type': queue_type.group(1)}
     return queues_labels
 
 
@@ -35,20 +34,22 @@ def make_metrics_data_for_queues(queues_labels, mq_manager):
     for queue_name, queue_labels in queues_labels.items():
         metric_name_max_depth = 'mq_queue_{0}'.format('maxdepth')
         metric_name_cur_depth = 'mq_queue_{0}'.format('curdepth')
-        max_depth_metric = '%s{qmname="%s", queuename="%s", type="%s"} %d\n' % (
+        max_depth_metric = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}", type="{5}"}} {6}\n'.format(
+            '# HELP {0} Maximum depth of queue.'.format(metric_name_max_depth),
+            '# TYPE {0} gauge'.format(metric_name_max_depth),
             metric_name_max_depth,
             mq_manager,
             queue_name,
             queue_labels['type'],
-            int(queue_labels['maxdepth'])
-            )
-        cur_depth_metric = '%s{qmname="%s", queuename="%s", type="%s"} %d\n' % (
+            int(queue_labels['maxdepth']))
+        cur_depth_metric = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}", type="{5}"}} {6}\n'.format(
+            '# HELP {0} Current depth of queue.'.format(metric_name_cur_depth),
+            '# TYPE {0} gauge'.format(metric_name_cur_depth),
             metric_name_cur_depth,
             mq_manager,
             queue_name,
             queue_labels['type'],
-            int(queue_labels['curdepth'])
-            )
+            int(queue_labels['curdepth']))
         prometheus_data_list.extend([max_depth_metric, cur_depth_metric])
     prometheus_data_str = ''.join(prometheus_data_list)
     return prometheus_data_str
@@ -86,8 +87,7 @@ def get_queues_labels_monitor(queue_labels_data):
                 'lgetdate': lgetdate.group(1),
                 'lputdate': lputdate.group(1),
                 'msgage': msgage.group(1),
-                'qtime': qtime.group(1),
-                }
+                'qtime': qtime.group(1)}
     return queues_labels_monitor
 
 
@@ -102,36 +102,41 @@ def make_metrics_data_for_queues_monitor(queues_labels, mq_manager):
         metric_value_lput = time.mktime(datetime.datetime.strptime(value_lput, "%Y-%m-%d %H.%M.%S").timetuple())
         value_lget = ' '.join([queue_labels['lgetdate'], queue_labels['lgettime']])
         metric_value_lget = time.mktime(datetime.datetime.strptime(value_lget, "%Y-%m-%d %H.%M.%S").timetuple())
-        msgage_metric = '%s{qmname="%s", queuename="%s"} %d\n' % (
+        msgage_metric = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}"}} {5}\n'.format(
+            '# HELP {0} Age of the oldest message on the queue.'.format(metric_name_msgage),
+            '# TYPE {0} gauge'.format(metric_name_msgage),
             metric_name_msgage,
             mq_manager,
             queue_name,
-            int(queue_labels['msgage'])
-            )
-        lput_metric = '%s{qmname="%s", queuename="%s"} %d\n' % (
+            int(queue_labels['msgage']))
+        lput_metric = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}"}} {5}\n'.format(
+            '# HELP {0} Timestamp on which the last message was put to the queue.'.format(metric_name_lput),
+            '# TYPE {0} gauge'.format(metric_name_lput),
             metric_name_lput,
             mq_manager,
             queue_name,
-            int(metric_value_lput)
-            )
-        lget_metric = '%s{qmname="%s", queuename="%s"} %d\n' % (
+            int(metric_value_lput))
+        lget_metric = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}"}} {5}\n'.format(
+            '# HELP {0} Timestamp on which the last message was retrieved from the queue.'.format(metric_name_lget),
+            '# TYPE {0} gauge'.format(metric_name_lget),
             metric_name_lget,
             mq_manager,
             queue_name,
-            int(metric_value_lget)
-            )
-        metric_name_qtime_short = '%s{qmname="%s", queuename="%s", indicator="short_term"} %d\n' % (
+            int(metric_value_lget))
+        metric_name_qtime_short = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}", indicator="short_term"}} {5}\n'.format(
+            '# HELP {0} Interval between messages being put on the queue and then being destructively read.'.format(metric_name_qtime),
+            '# TYPE {0} gauge'.format(metric_name_qtime),
             metric_name_qtime,
             mq_manager,
             queue_name,
-            int(queue_labels['qtime'].split(',')[0])
-            )
-        metric_name_qtime_long = '%s{qmname="%s", queuename="%s", indicator="long_term"} %d\n' % (
+            int(queue_labels['qtime'].split(',')[0]))
+        metric_name_qtime_long = '{0}\n{1}\n{2}{{qmname="{3}", queuename="{4}", indicator="long_term"}} {5}\n'.format(
+            '# HELP {0} Interval between messages being put on the queue and then being destructively read.'.format(metric_name_qtime),
+            '# TYPE {0} gauge'.format(metric_name_qtime),
             metric_name_qtime,
             mq_manager,
             queue_name,
-            int(queue_labels['qtime'].split(',')[1].strip())
-            )
+            int(queue_labels['qtime'].split(',')[1].strip()))
         prometheus_data_list.extend([msgage_metric, lput_metric, lget_metric, metric_name_qtime_short, metric_name_qtime_long])
     prometheus_data_str = ''.join(prometheus_data_list)
     return prometheus_data_str
