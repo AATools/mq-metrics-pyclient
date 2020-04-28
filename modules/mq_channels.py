@@ -18,8 +18,7 @@ def extract_channel_name(channel):
     channel_name_regexp = r'\(([^}]+)\)'
     # Hidden default system channels
     channel_system_default_regexp = r'SYSTEM.'
-    # Hidden default system channels for automatic definition of receiver
-    # and server-connection
+    # Hidden default system channels for automatic definition of receiver and server-connection
     match = re.findall(channel_name_regexp, channel)
     channel_name = ''.join(match)
     if not (re.search(channel_system_default_regexp, channel_name)):
@@ -61,9 +60,7 @@ def get_channel_status(channel_data, labels_data):
                     status_data[i][key] = labels_data[i][key]
             except IndexError as err:
                 logger.error(err)
-                logger.error("Error for key: {0} in status_data: {1}".format(
-                    key,
-                    labels_data))
+                logger.error("Error for key: {0} in status_data: {1}".format(key, labels_data))
     return status_data
 
 
