@@ -42,3 +42,16 @@ def run_mq_command(**kwargs):
                             universal_newlines=True)
     output = proc.communicate()[0]
     return output
+
+
+def check_not_empty_list(lis1):
+    if not lis1:
+        return 0
+    else:
+        return 1
+
+
+def add_annotation(lis1, annotation):
+    if check_not_empty_list(lis1):
+        lis1.insert(0, annotation)
+    return lis1

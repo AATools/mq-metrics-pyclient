@@ -1,9 +1,50 @@
 # -*- coding: utf-8 -*-
 import re
 from log.logger_client import set_logger
+from modules.mq_api import (
+    run_mq_command,
+    add_annotation)
 
 
 logger = set_logger()
+
+
+def get_metric_name(metric_label):
+    return 'mq_listener_{0}'.format(metric_label)
+
+
+def get_metric_annotation():
+    annotations = {
+        'status': '# HELP {0} Current status of MQ listener.\n\
+# TYPE {0} gauge\n'.format(get_metric_name('status'))}
+    return annotations
+
+
+def get_mq_listeners_metrics(listeners, mq_manager):
+    metrics_annotation = get_metric_annotation()
+    prometheus_data_list = list()
+    for listener in listeners:
+        listener_data = run_mq_command(
+            task='get_lsstatus',
+            mqm=mq_manager,
+            listener=listener)
+        listener_labels = run_mq_command(
+            task='get_listener',
+            mqm=mq_manager,
+            listener=listener)
+        listener_status = get_listener_status(
+            listener_name=listener,
+            mqm=mq_manager,
+            listener_data=listener_data,
+            listener_labels=listener_labels)
+        metric_data = make_metric_for_mq_listener_status(
+            listener,
+            listener_status,
+            mq_manager)
+        prometheus_data_list.append('{0}'.format(metric_data))
+    add_annotation(prometheus_data_list, metrics_annotation['status'])
+    prometheus_data_str = ''.join(prometheus_data_list)
+    return prometheus_data_str
 
 
 def get_listeners(listeners_data):
@@ -65,12 +106,8 @@ def get_listener_status(
 
 
 def make_metric_for_mq_listener_status(listener_name, mq_listener_status_data, mqm):
-    metric_name = 'mq_listener_status'
-    metric_data = '{0}\n{1}\n{2}{{qmname="{3}", listener="{4}", pid="{5}", ipadd="{6}", port="{7}", trptype="{8}", \
-control="{9}", backlog="{10}", startda="{11}", startti="{12}", desc="{13}"}} {14}\n'.format(
-        '# HELP {0} Current status of MQ listener.'.format(metric_name),
-        '# TYPE {0} gauge'.format(metric_name),
-        metric_name,
+    template_string = 'qmname="{0}", listener="{1}", pid="{2}", ipadd="{3}", port="{4}", trptype="{5}", \
+control="{6}", backlog="{7}", startda="{8}", startti="{9}", desc="{10}"'.format(
         mqm,
         mq_listener_status_data["LISTENER"],
         mq_listener_status_data["PID"],
@@ -81,6 +118,9 @@ control="{9}", backlog="{10}", startda="{11}", startti="{12}", desc="{13}"}} {14
         mq_listener_status_data["BACKLOG"],
         mq_listener_status_data["STARTDA"],
         mq_listener_status_data["STARTTI"],
-        mq_listener_status_data["DESCR"],
+        mq_listener_status_data["DESCR"])
+    metric_data = '{0}{{{1}}} {2}\n'.format(
+        get_metric_name('status'),
+        template_string,
         mq_listener_status_data["STATUS"])
     return metric_data
