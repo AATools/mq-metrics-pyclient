@@ -18,6 +18,9 @@ sys.path.append(os.getcwd())
 class TestGetQueuesLabels(unittest.TestCase):
     def test_get_queues_labels(self):
         input_data = '''\
+Display Queue details
+
+Display Queue details
 QUEUE(SYSTEM.DEFAULT.LOCAL.QUEUE) \
 TYPE(QLOCAL) \
 CURDEPTH(0) \
@@ -31,11 +34,18 @@ MAXDEPTH(5000)'''
 
     def test_get_queues_labels_monitor(self):
         input_data = '''\
+Display queue status details
 QUEUE(DEV.QUEUE.1) TYPE(QUEUE) \
 CURDEPTH(0)        LGETDATE(2019-12-24) \
 LGETTIME(13.00.01) LPUTDATE(2019-12-24) \
 LPUTTIME(13.00.00) MONQ(MEDIUM) \
-MSGAGE(0)          QTIME(3231, 3232)'''
+MSGAGE(0)          QTIME(3231, 3232)
+Display queue status details
+QUEUE(DEV.QUEUE.2) TYPE(QUEUE) \
+CURDEPTH(0)        LGETDATE(2019-12-24) \
+LGETTIME(13.00.02) LPUTDATE(2019-12-24) \
+LPUTTIME(13.00.00) MONQ(OFF) \
+MSGAGE(0)          QTIME(,)'''
         check_data = {'DEV.QUEUE.1': {'lgettime': '13.00.01',
                                       'lputtime': '13.00.00',
                                       'lgetdate': '2019-12-24',
