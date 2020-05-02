@@ -7,7 +7,9 @@ from modules.mq_listener import (
     format_output,
     make_metric_for_mq_listener_status,
     get_listener_labels,
-    get_listener_status)
+    get_listener_status,
+    get_metric_name,
+    get_metric_annotation)
 sys.path.append(os.getcwd())
 
 
@@ -251,8 +253,6 @@ class TestMakeMetricForMqListenerStatus(unittest.TestCase):
                       'STATUS': 3,
                       'TRPTYPE': 'TCP'}
         check_data = '''\
-# HELP mq_listener_status Current status of MQ listener.
-# TYPE mq_listener_status gauge
 mq_listener_status{qmname="TEST", listener="LISTENER", pid="11111", \
 ipadd="*", port="1414", trptype="TCP", control="QMGR", backlog="10000", \
 startda="2019-09-03", startti="17.47.32", desc=" "} 3\n'''
@@ -262,6 +262,15 @@ startda="2019-09-03", startti="17.47.32", desc=" "} 3\n'''
                 self.listener_name,
                 input_data,
                 self.mqm))
+
+
+class GetMetricAnnotation(unittest.TestCase):
+    def test_get_metric_name(self):
+        self.assertEqual('mq_listener_status', get_metric_name('status'))
+
+    def test_get_metric_annotation(self):
+        self.assertIsInstance(get_metric_annotation(), dict)
+        self.assertIsInstance(get_metric_annotation().get('status'), str)
 
 
 if __name__ == '__main__':
