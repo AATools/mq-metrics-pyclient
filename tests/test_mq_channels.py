@@ -458,13 +458,34 @@ class TestGetMqChannelsMetrics(unittest.TestCase):
                                          'RQMNAME': '',
                                          'STATUS': 'RUNNING',
                                          'SUBSTATE': 'RECEIVE',
+                                         'XMITQ': ''},
+                                        {'BATCHES': '',
+                                         'BUFSRCVD': '',
+                                         'BUFSSENT': '',
+                                         'BYTSRCVD': '',
+                                         'BYTSSENT': '',
+                                         'CHANNEL': 'TEST_DOWN',
+                                         'CHLTYPE': 'SVR',
+                                         'CHSTADA': '',
+                                         'CHSTATI': '',
+                                         'CONNAME': '10.92.10.11(1414)',
+                                         'JOBNAME': '',
+                                         'LSTMSGDA': '',
+                                         'LSTMSGTI': '',
+                                         'MSGS': '',
+                                         'RQMNAME': '',
+                                         'STATUS': '',
+                                         'SUBSTATE': '',
                                          'XMITQ': ''}]}
         templ = ['qmname="TEST", conname="10.92.10.10(1414)", \
 substate="MQGET", xmitq="TEST", chltype="SVR", chstada="2020-03-19", \
 chstati="17.00.00", rqmname="TEST", jobname="00005C6800000001", channel="TEST"',
                  'qmname="TEST", conname="127.0.0.1", \
 substate="RECEIVE", xmitq="", chltype="SVRCONN", chstada="2020-03-19", \
-chstati="18.00.00", rqmname="", jobname="000010EC00000007", channel="ADMIN.SVRCONN"']
+chstati="18.00.00", rqmname="", jobname="000010EC00000007", channel="ADMIN.SVRCONN"',
+                 'qmname="TEST", conname="10.92.10.11(1414)", \
+substate="", xmitq="", chltype="SVR", chstada="", \
+chstati="", rqmname="", jobname="", channel="TEST_DOWN"']
         check_data = '''\
 # HELP mq_channel_batches Number of completed batches during this session.
 # TYPE mq_channel_batches counter
@@ -493,13 +514,15 @@ mq_channel_msgs{{{1}}} 1510
 # HELP mq_channel_status Current status of MQ channel.
 # TYPE mq_channel_status gauge
 mq_channel_status{{{0}}} 3
-mq_channel_status{{{1}}} 3\n\
+mq_channel_status{{{1}}} 3
+mq_channel_status{{{4}}} 0\n\
 '''.format(templ[0],
            templ[1],
            self.timestmp(input_data['ADMIN.SRVCONN'][0]['LSTMSGDA'],
                          input_data['ADMIN.SRVCONN'][0]['LSTMSGTI']),
            self.timestmp(input_data['ADMIN.SRVCONN'][1]['LSTMSGDA'],
-                         input_data['ADMIN.SRVCONN'][1]['LSTMSGTI']))
+                         input_data['ADMIN.SRVCONN'][1]['LSTMSGTI']),
+           templ[2])
         self.assertEqual(
             check_data,
             get_mq_channels_metrics(
