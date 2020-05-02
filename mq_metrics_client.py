@@ -29,6 +29,12 @@ class PrometheusBadResponse(Exception):
     pass
 
 
+def static_content():
+    name = "mq-metrics-pyclient"
+    version = "0.4"
+    return '{0} v.{1}'.format(name, version)
+
+
 def put_metric_to_gateway(metric_data, job):
     hostname = platform.node()
     port = 9091
@@ -82,9 +88,7 @@ def main():
 
 
 if __name__ == "__main__":
-    name = "mq-metrics-pyclient"
-    version = "0.4"
-    logger.info("Run {0} v.{1}".format(name, version))
+    logger.info("Run {0}".format(static_content()))
     while True:
         main()
         time.sleep(15)
