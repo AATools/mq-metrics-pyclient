@@ -91,7 +91,7 @@ def make_metrics_data_for_queues(queues_labels, mq_manager):
             int(queue_labels['curdepth']))
         prometheus_data_list[metrics_annotation['maxdepth'][1]].append(max_depth_metric)
         prometheus_data_list[metrics_annotation['curdepth'][1]].append(cur_depth_metric)
-    for key in metrics_annotation.keys():
+    for key in sorted(metrics_annotation.keys()):
         add_annotation(prometheus_data_list[metrics_annotation[key][1]], metrics_annotation[key][0])
         prometheus_data_list_result.extend(prometheus_data_list[metrics_annotation[key][1]])
     prometheus_data_str = ''.join(prometheus_data_list_result)
@@ -172,7 +172,7 @@ def make_metrics_data_for_queues_monitor(queues_labels, mq_manager):
         prometheus_data_list[metrics_annotation['qtime'][1]].extend([
             metric_name_qtime_short,
             metric_name_qtime_long])
-    for key in metrics_annotation.keys():
+    for key in sorted(metrics_annotation.keys()):
         add_annotation(prometheus_data_list[metrics_annotation[key][1]], metrics_annotation[key][0])
         prometheus_data_list_result.extend(prometheus_data_list[metrics_annotation[key][1]])
     prometheus_data_str = ''.join(prometheus_data_list_result)

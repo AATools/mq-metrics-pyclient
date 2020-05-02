@@ -109,7 +109,7 @@ def get_mq_channels_metrics(mq_channels, mq_manager):
                 prometheus_data_list[metrics_annotation['lmsg'][1]].append(metric_data_lmsg)
                 prometheus_data_list[metrics_annotation['msgs'][1]].append(metric_data_msgs)
                 prometheus_data_list[metrics_annotation['batches'][1]].append(metric_data_batches)
-    for key in metrics_annotation.keys():
+    for key in sorted(metrics_annotation.keys()):
         add_annotation(prometheus_data_list[metrics_annotation[key][1]], metrics_annotation[key][0])
         prometheus_data_list_result.extend(prometheus_data_list[metrics_annotation[key][1]])
     prometheus_data_str = ''.join(prometheus_data_list_result)
