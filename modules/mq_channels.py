@@ -38,7 +38,7 @@ def get_metric_annotation():
 def channels_status(mqm):
     """Returns dictionary with channels data."""
     channels = run_mq_command(task='get_channels', mqm=mqm)
-    channels_list = get_channels(channel_data=channels)
+    channels_list = get_channels(channels_data=channels)
     mq_channels_status = {}
     for channel in channels_list:
         channel_name = extract_channel_name(channel=channel)
