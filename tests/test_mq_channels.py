@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tests for `mq_channels`."""
 import os
 import sys
 import unittest
@@ -19,6 +20,7 @@ sys.path.append(os.getcwd())
 
 class TestGetChannel(unittest.TestCase):
     def test_get_channels(self):
+        """Test for `get_channels` function."""
         input_data = '''\
 5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -32,25 +34,28 @@ All valid MQSC commands were processed.
         check_data = ['CHANNEL(ADMIN.SVRCONN)']
         self.assertEqual(
             check_data,
-            get_channels(input_data))
+            get_channels(channels_data=input_data))
 
 
 class TestExtractChannelName(unittest.TestCase):
     def test_extract_channel_name(self):
+        """Test for `extract_channel_name` function."""
         input_data = 'CHANNEL(ADMIN.SVRCONN)'
         check_data = 'ADMIN.SVRCONN'
         self.assertEqual(
             check_data,
-            extract_channel_name(input_data))
+            extract_channel_name(channel=input_data))
 
     def test_hidden_system_cnannel(self):
+        """Test for `extract_channel_name` function for `SYSTEM` channel."""
         input_data = 'CHANNEL(SYSTEM.ADMIN.SVRCONN)'
         self.assertFalse(
-            extract_channel_name(input_data))
+            extract_channel_name(channel=input_data))
 
 
 class TestGetTemplate(unittest.TestCase):
     def test_get_template(self):
+        """Test for `get_template` function."""
         tempalte = {'BATCHES': '',
                     'BUFSRCVD': '',
                     'BUFSSENT': '',
@@ -93,6 +98,7 @@ LSTMSGDA LSTMSGTI MSGS
    STATUS(RUNNING)            SUBSTATE(RECEIVE)''']
 
     def test_get_channel_status(self):
+        """Test for `get_channel_status` function."""
         input_data = '''\
 {0}
 AMQ8417: Display Channel Status details.
@@ -141,10 +147,11 @@ All valid MQSC commands were processed.
         self.assertEqual(
             check_data,
             get_channel_status(
-                input_data,
-                label_data))
+                channel_data=input_data,
+                labels_data=label_data))
 
     def test_get_channel_status_not_found(self):
+        """Test for `get_channel_status` function for `not found` case."""
         input_data = '''\
 {0}
 AMQ8420: Channel Status not found.
@@ -201,8 +208,8 @@ One valid MQSC command could not be processed.
         self.assertEqual(
             check_data,
             get_channel_status(
-                input_data,
-                label_data))
+                channel_data=input_data,
+                labels_data=label_data))
 
 
 class TestFormatChannelOutput(unittest.TestCase):
@@ -266,6 +273,7 @@ LSTMSGDA LSTMSGTI MSGS
          'SUBSTATE': 'RECEIVE'}]
 
     def test_format_channel_output_one(self):
+        """Test for `format_channel_output` function for single case."""
         input_data = '''\
 {0}
 AMQ8417: Display Channel Status details.
@@ -278,9 +286,10 @@ All valid MQSC commands were processed.
         check_data = [self.check_data_temp[0]]
         self.assertEqual(
             check_data,
-            format_channel_output(input_data))
+            format_channel_output(data_to_format=input_data))
 
     def test_format_channel_output_many(self):
+        """Test for `format_channel_output` function for multiple case."""
         input_data = '''\
 {0}
 AMQ8417: Display Channel Status details.
@@ -298,9 +307,10 @@ All valid MQSC commands were processed.
             self.check_data_temp[1]]
         self.assertEqual(
             check_data,
-            format_channel_output(input_data))
+            format_channel_output(data_to_format=input_data))
 
     def test_format_channel_output_not_found_AMQ84_in_first_entry(self):
+        """Test for `format_channel_output` function for not found `AMQ84` in first entry case."""
         input_data = '''\
 {0}
 AMQ85: Display Channel Status details.
@@ -315,9 +325,10 @@ All valid MQSC commands were processed.
         check_data = [self.check_data_temp[1]]
         self.assertEqual(
             check_data,
-            format_channel_output(input_data))
+            format_channel_output(data_to_format=input_data))
 
     def test_format_channel_output_not_found_AMQ84_at_all(self):
+        """Test for `format_channel_output` function for not found `AMQ84` at all case."""
         input_data = '''\
 {0}
 AMQ85: Display Channel Status details.
@@ -332,9 +343,10 @@ All valid MQSC commands were processed.
         check_data = [{}]
         self.assertEqual(
             check_data,
-            format_channel_output(input_data))
+            format_channel_output(data_to_format=input_data))
 
     def test_format_channel_output_not_found_OneMQSC(self):
+        """Test for `format_channel_output` function for not found `One MQSC` case."""
         input_data = '''\
 {0}
 AMQ8417: Display Channel Status details.
@@ -347,16 +359,18 @@ All valid MQSC commands were processed.
         check_data = []
         self.assertEqual(
             check_data,
-            format_channel_output(input_data))
+            format_channel_output(data_to_format=input_data))
 
 
 class TestMakeMetricForMqChannelsStatus(unittest.TestCase):
     def timestmp(self, d, t):
+        """Returns timestamp."""
         result = time.mktime(datetime.datetime.strptime(
             ' '.join([d, t]), "%Y-%m-%d %H.%M.%S").timetuple())
         return int(result)
 
-    def test_make_metric(self):
+    def test_make_metric_for_mq_channels_status(self):
+        """Test for `make_metric_for_mq_channels_status` function."""
         mq_manager = 'TEST'
         channel_data = {'BATCHES': '',
                         'BUFSRCVD': '7216',
@@ -391,8 +405,8 @@ mq_channel_bytes{{{0}, indicator="bytes_sent"}} 949752
 '''.format(data_templ), '''\
 mq_channel_lmsg{{{0}}} {1}
 '''.format(data_templ,
-           self.timestmp(channel_data['LSTMSGDA'],
-                         channel_data['LSTMSGTI'])), '''\
+           self.timestmp(d=channel_data['LSTMSGDA'],
+                         t=channel_data['LSTMSGTI'])), '''\
 mq_channel_msgs{{{0}}} 1510
 '''.format(data_templ), '''\
 mq_channel_batches{{{0}}} 0
@@ -412,16 +426,19 @@ mq_channel_batches{{{0}}} 0
             self.assertEqual(
                 check_data_temp[i],
                 make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    status_data_temp[i]))
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type=status_data_temp[i]))
+
 
 class TestGetMqChannelsMetrics(unittest.TestCase):
     def timestmp(self, d, t):
+        """Returns timestamp."""
         result = time.mktime(datetime.datetime.strptime(' '.join([d, t]), "%Y-%m-%d %H.%M.%S").timetuple())
         return int(result)
 
     def test_get_mq_channels_metrics(self):
+        """Test for `get_mq_channels_metrics` function."""
         mqm = 'TEST'
         input_data = {'ADMIN.SRVCONN': [{'BATCHES': '50',
                                          'BUFSRCVD': '1000',
@@ -518,23 +535,25 @@ mq_channel_status{{{1}}} 3
 mq_channel_status{{{4}}} 0\n\
 '''.format(templ[0],
            templ[1],
-           self.timestmp(input_data['ADMIN.SRVCONN'][0]['LSTMSGDA'],
-                         input_data['ADMIN.SRVCONN'][0]['LSTMSGTI']),
-           self.timestmp(input_data['ADMIN.SRVCONN'][1]['LSTMSGDA'],
-                         input_data['ADMIN.SRVCONN'][1]['LSTMSGTI']),
+           self.timestmp(d=input_data['ADMIN.SRVCONN'][0]['LSTMSGDA'],
+                         t=input_data['ADMIN.SRVCONN'][0]['LSTMSGTI']),
+           self.timestmp(d=input_data['ADMIN.SRVCONN'][1]['LSTMSGDA'],
+                         t=input_data['ADMIN.SRVCONN'][1]['LSTMSGTI']),
            templ[2])
         self.assertEqual(
             check_data,
             get_mq_channels_metrics(
-                input_data,
-                mqm))
+                mq_channels=input_data,
+                mq_manager=mqm))
 
 
 class GetMetricAnnotation(unittest.TestCase):
     def test_get_metric_name(self):
-        self.assertEqual('mq_channel_status', get_metric_name('status'))
+        """Test for `get_metric_name` function."""
+        self.assertEqual('mq_channel_status', get_metric_name(metric_label='status'))
 
     def test_get_metric_annotation(self):
+        """Tests for `get_metric_annotation` function."""
         self.assertIsInstance(get_metric_annotation(), dict)
         self.assertIsInstance(get_metric_annotation().get('status'), list)
         self.assertIsInstance(get_metric_annotation().get('status')[0], str)

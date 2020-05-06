@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+"""Various functions for logging."""
 import os
 import logging
 from logging.handlers import RotatingFileHandler
 
 
 def set_logger():
+    """Sets logger."""
     logs_dir = os.getenv("METRICS_LOGS_PATH")
     if logs_dir:
         log_path = os.path.join(logs_dir, 'mq_client.log')

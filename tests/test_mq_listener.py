@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tests for `mq_listener`."""
 import os
 import sys
 import unittest
@@ -15,6 +16,7 @@ sys.path.append(os.getcwd())
 
 class TestGetListeners(unittest.TestCase):
     def test_get_listeners(self):
+        """Test for `get_listeners` function."""
         input_data = '''\
 5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -30,9 +32,10 @@ All valid MQSC commands were processed.
         check_data = ['LISTENER']
         self.assertEqual(
             check_data,
-            get_listeners(input_data))
+            get_listeners(listeners_data=input_data))
 
     def test_get_listeners_for_defaul_listener(self):
+        """Test for `get_listeners` function for `SYSTEM DEFAULT` listener."""
         input_data = '''\
 5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -46,11 +49,12 @@ All valid MQSC commands were processed.
         check_data = []
         self.assertEqual(
             check_data,
-            get_listeners(input_data))
+            get_listeners(listeners_data=input_data))
 
 
 class TestGetListenerLabels(unittest.TestCase):
     def test_get_listener_labels(self):
+        """Test for `get_listener_labels` function."""
         input_data = '''\
 5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -76,11 +80,12 @@ All valid MQSC commands were processed.
                       'TRPTYPE': 'TCP'}
         self.assertEqual(
             check_data,
-            get_listener_labels(input_data))
+            get_listener_labels(labels=input_data))
 
 
 class TestFormatOutput(unittest.TestCase):
     def test_format_output_status(self):
+        """Test for `format_output` function for `status` method."""
         input_data = '''\
 724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -111,9 +116,10 @@ All valid MQSC commands were processed.
         method = 'status'
         self.assertEqual(
             check_data,
-            format_output(input_data, method))
+            format_output(data_to_format=input_data, method=method))
 
     def test_format_output_labels(self):
+        """Test for `format_output` function for `labels` method."""
         input_data = '''\
 724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -143,7 +149,7 @@ All valid MQSC commands were processed.
         method = 'labels'
         self.assertEqual(
             check_data,
-            format_output(input_data, method))
+            format_output(data_to_format=input_data, method=method))
 
 
 class TestGetListenerStatus(unittest.TestCase):
@@ -161,10 +167,9 @@ One MQSC command read.
 No commands have a syntax error.
 All valid MQSC commands were processed.
 '''
-    listener = 'TEST'
-    mqm = 'TEST'
 
     def test_get_listener_status(self):
+        """Test for `get_listener_status` function."""
         status_dict = {'STOPPED': 0,
                        'RUNNING': 3,
                        }
@@ -200,12 +205,11 @@ All valid MQSC commands were processed.
             self.assertEqual(
                 check_data,
                 get_listener_status(
-                    self.listener,
-                    self.mqm,
-                    input_data,
-                    self.input_labels))
+                    listener_data=input_data,
+                    listener_labels=self.input_labels))
 
     def test_get_listener_status_not_found(self):
+        """Test for `get_listener_status` function for `not found` case."""
         input_data = '''\
 5724-H72 (C) Copyright IBM Corp. 1994, 2011.  ALL RIGHTS RESERVED.
 Starting MQSC for queue manager TEST.
@@ -230,17 +234,15 @@ One valid MQSC command could not be processed.
         self.assertEqual(
             check_data,
             get_listener_status(
-                self.listener,
-                self.mqm,
-                input_data,
-                self.input_labels))
+                listener_data=input_data,
+                listener_labels=self.input_labels))
 
 
 class TestMakeMetricForMqListenerStatus(unittest.TestCase):
     mqm = 'TEST'
-    listener_name = 'LISTENER'
 
     def test_make_metric_for_mq_listener_status(self):
+        """Test for `make_metric_for_mq_listener_status` function."""
         input_data = {'BACKLOG': '10000',
                       'CONTROL': 'QMGR',
                       'DESCR': ' ',
@@ -259,16 +261,17 @@ startda="2019-09-03", startti="17.47.32", desc=" "} 3\n'''
         self.assertEqual(
             check_data,
             make_metric_for_mq_listener_status(
-                self.listener_name,
-                input_data,
-                self.mqm))
+                mq_listener_status_data=input_data,
+                mqm=self.mqm))
 
 
 class GetMetricAnnotation(unittest.TestCase):
     def test_get_metric_name(self):
-        self.assertEqual('mq_listener_status', get_metric_name('status'))
+        """Test for `get_metric_name` function."""
+        self.assertEqual('mq_listener_status', get_metric_name(metric_label='status'))
 
     def test_get_metric_annotation(self):
+        """Tests for `get_metric_annotation` function."""
         self.assertIsInstance(get_metric_annotation(), dict)
         self.assertIsInstance(get_metric_annotation().get('status'), str)
 

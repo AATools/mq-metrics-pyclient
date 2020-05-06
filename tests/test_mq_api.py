@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Tests for `mq_api`."""
 import os
 import sys
 import unittest
@@ -10,12 +11,14 @@ sys.path.append(os.getcwd())
 
 class TestListFunctions(unittest.TestCase):
     def test_check_not_empty_list(self):
-        self.assertEqual(check_not_empty_list([]), 0)
-        self.assertEqual(check_not_empty_list(['test']), 1)
+        """Tests for `check_not_empty_list` function."""
+        self.assertEqual(check_not_empty_list(lis1=list()), 0)
+        self.assertEqual(check_not_empty_list(lis1=['test']), 1)
 
     def test_add_annotation(self):
-        self.assertEqual(add_annotation([], 'test'), [])
-        self.assertEqual(add_annotation(['test'], 'Good'), ['Good', 'test'])
+        """Tests for `add_annotation` function."""
+        self.assertEqual(add_annotation(lis1=list(), annotation='test'), [])
+        self.assertEqual(add_annotation(lis1=['test'], annotation='Good'), ['Good', 'test'])
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Python client for collecting IBM MQ metrics and exporting to Prometheus pushgateway."""
 import sys
 import time
 import traceback
@@ -30,18 +31,21 @@ class PrometheusBadResponse(Exception):
 
 
 def static_content():
+    """Client name and version."""
     name = "mq-metrics-pyclient"
     version = "0.4"
     return '{0} v.{1}'.format(name, version)
 
 
 def put_metric_to_gateway(metric_data, job):
+    """Sends data to Prometheus pushgateway."""
     hostname = platform.node()
     port = 9091
     src_url = "http://{0}:{1}".format(hostname, port)
     headers = {"Content-Type": "text/plain; version=0.0.4"}
     dest_url = "{0}/metrics/job/{1}".format(src_url, job)
     logger.info("Destination url: {0}".format(dest_url))
+    # Debug info
     # logger.info("Metric data to push: {0}".format(metric_data))
     try:
         response = requests.put(dest_url, data=metric_data, headers=headers)
@@ -56,17 +60,17 @@ def main():
     start_time = time.time()
     try:
         mq_managers_data = run_mq_command(task='get_mq_managers')
-        mq_managers = get_mq_managers(mq_managers_data)
+        mq_managers = get_mq_managers(mq_managers_data=mq_managers_data)
         for mq_manager in mq_managers:
-            mq_manager_metrics, status = get_mq_manager_metrics(mq_manager)
+            mq_manager_metrics, status = get_mq_manager_metrics(mq_manager=mq_manager)
             if status == 1:
                 listeners_data = run_mq_command(task='get_listeners', mqm=mq_manager)
-                listeners = get_listeners(listeners_data)
-                mq_listeners_metrics = get_mq_listeners_metrics(listeners, mq_manager)
-                mq_channels = channels_status(mq_manager)
-                mq_channels_metrics = get_mq_channels_metrics(mq_channels, mq_manager)
-                mq_queues_metrics = get_queues_metrics(mq_manager)
-                mq_queues_metrics_monitor = get_queues_metrics_monitor(mq_manager)
+                listeners = get_listeners(listeners_data=listeners_data)
+                mq_listeners_metrics = get_mq_listeners_metrics(listeners=listeners, mq_manager=mq_manager)
+                mq_channels = channels_status(mqm=mq_manager)
+                mq_channels_metrics = get_mq_channels_metrics(mq_channels=mq_channels, mq_manager=mq_manager)
+                mq_queues_metrics = get_queues_metrics(mq_manager=mq_manager)
+                mq_queues_metrics_monitor = get_queues_metrics_monitor(mq_manager=mq_manager)
                 metric_data = '{0}{1}{2}{3}{4}'.format(
                     mq_manager_metrics,
                     mq_listeners_metrics,
@@ -76,7 +80,7 @@ def main():
                 put_metric_to_gateway(metric_data, mq_manager)
                 logger.info("All metrics pushed successfully!")
             else:
-                put_metric_to_gateway(mq_manager_metrics, mq_manager)
+                put_metric_to_gateway(metric_data=mq_manager_metrics, job=mq_manager)
                 logger.warning("Pushed only metric for mq_manager!")
     except PrometheusBadResponse as error:
         logger.error(error)

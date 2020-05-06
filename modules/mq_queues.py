@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Various functions for MQ queues."""
 import re
 import time
 import datetime
@@ -12,10 +13,12 @@ logger = set_logger()
 
 
 def get_metric_name(metric_label):
+    """Returns pushgateway formatted metric name."""
     return 'mq_queue_{0}'.format(metric_label)
 
 
 def get_metric_annotation():
+    """Returns dictionary with annotations 'HELP' and 'TYPE' for main metrics."""
     annotations = {
         'maxdepth': ['# HELP {0} Maximum depth of queue.\n\
 # TYPE {0} gauge\n'.format(get_metric_name('maxdepth')), 0],
@@ -25,6 +28,7 @@ def get_metric_annotation():
 
 
 def get_metric_annotation_monitor():
+    """Returns dictionary with annotations 'HELP' and 'TYPE' for real-time monitoring metrics."""
     annotations = {
         'msgage': ['# HELP {0} Age of the oldest message on the queue.\n\
 # TYPE {0} gauge\n'.format(get_metric_name('msgage')), 0],
@@ -38,20 +42,24 @@ def get_metric_annotation_monitor():
 
 
 def get_queues_metrics(mq_manager):
+    """Returns string with all main queues metrics which ready to push to pushgateway."""
     queue_labels_data = run_mq_command(task='get_queues', mqm=mq_manager)
-    queues_labels = get_queues_labels(queue_labels_data)
-    queues_metrics = make_metrics_data_for_queues(queues_labels, mq_manager)
+    queues_labels = get_queues_labels(queue_labels_data=queue_labels_data)
+    queues_metrics = make_metrics_data_for_queues(queues_labels=queues_labels, mq_manager=mq_manager)
     return queues_metrics
 
 
 def get_queues_metrics_monitor(mq_manager):
+    """Returns string with all real-time monitoring metrics which ready to push to pushgateway."""
     queue_labels_data_monitor = run_mq_command(task='get_queues_monitor', mqm=mq_manager)
-    queues_labels_monitor = get_queues_labels_monitor(queue_labels_data_monitor)
-    queues_metrics_monitor = make_metrics_data_for_queues_monitor(queues_labels_monitor, mq_manager)
+    queues_labels_monitor = get_queues_labels_monitor(queue_labels_data=queue_labels_data_monitor)
+    queues_metrics_monitor = make_metrics_data_for_queues_monitor(queues_labels=queues_labels_monitor, mq_manager=mq_manager)
     return queues_metrics_monitor
 
 
 def get_queues_labels(queue_labels_data):
+    """Returns parsed data for main metrics.
+    Converts input string with raw data to a dictionary."""
     queue_regexp = r'QUEUE\(([^)]+)\)'
     curdepth_regexp = r'CURDEPTH\(([^)]+)\)'
     maxdepth_regexp = r'MAXDEPTH\(([^)]+)\)'
@@ -73,6 +81,8 @@ def get_queues_labels(queue_labels_data):
 
 
 def make_metrics_data_for_queues(queues_labels, mq_manager):
+    """Returns string with all main metrics for all queues.
+    Converts input dictionary with data to pushgateway formatted string."""
     metrics_annotation = get_metric_annotation()
     prometheus_data_list = list(list() for i in range(len(metrics_annotation)))
     prometheus_data_list_result = list()
@@ -82,11 +92,11 @@ def make_metrics_data_for_queues(queues_labels, mq_manager):
             queue_name,
             queue_labels['type'])
         max_depth_metric = '{0}{{{1}}} {2}\n'.format(
-            get_metric_name('maxdepth'),
+            get_metric_name(metric_label='maxdepth'),
             template_string,
             int(queue_labels['maxdepth']))
         cur_depth_metric = '{0}{{{1}}} {2}\n'.format(
-            get_metric_name('curdepth'),
+            get_metric_name(metric_label='curdepth'),
             template_string,
             int(queue_labels['curdepth']))
         prometheus_data_list[metrics_annotation['maxdepth'][1]].append(max_depth_metric)
@@ -99,6 +109,8 @@ def make_metrics_data_for_queues(queues_labels, mq_manager):
 
 
 def get_queues_labels_monitor(queue_labels_data):
+    """Returns parsed data for real-time monitoring metrics.
+    Converts input string with raw data to a dictionary."""
     queue_regexp = r'QUEUE\(([^)]+)\)'
     lgettime_regexp = r'LGETTIME\(([^)]+)\)'
     lputtime_regexp = r'LPUTTIME\(([^)]+)\)'
@@ -135,6 +147,8 @@ def get_queues_labels_monitor(queue_labels_data):
 
 
 def make_metrics_data_for_queues_monitor(queues_labels, mq_manager):
+    """Returns string with all real-time monitoring metrics for all queues.
+    Converts input dictionary with data to pushgateway formatted string."""
     metrics_annotation = get_metric_annotation_monitor()
     prometheus_data_list = list(list() for i in range(len(metrics_annotation)))
     prometheus_data_list_result = list()

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Various functions for MQ listeners."""
 import re
 from log.logger_client import set_logger
 from modules.mq_api import (
@@ -10,17 +11,20 @@ logger = set_logger()
 
 
 def get_metric_name(metric_label):
+    """Returns pushgateway formatted metric name."""
     return 'mq_listener_{0}'.format(metric_label)
 
 
 def get_metric_annotation():
+    """Returns dictionary with annotations `HELP` and `TYPE` for metrics."""
     annotations = {
         'status': '# HELP {0} Current status of MQ listener.\n\
-# TYPE {0} gauge\n'.format(get_metric_name('status'))}
+# TYPE {0} gauge\n'.format(get_metric_name(metric_label='status'))}
     return annotations
 
 
 def get_mq_listeners_metrics(listeners, mq_manager):
+    """Returns string with status listeners metrics which ready to push to pushgateway."""
     metrics_annotation = get_metric_annotation()
     prometheus_data_list = list()
     for listener in listeners:
@@ -33,14 +37,11 @@ def get_mq_listeners_metrics(listeners, mq_manager):
             mqm=mq_manager,
             listener=listener)
         listener_status = get_listener_status(
-            listener_name=listener,
-            mqm=mq_manager,
             listener_data=listener_data,
             listener_labels=listener_labels)
         metric_data = make_metric_for_mq_listener_status(
-            listener,
-            listener_status,
-            mq_manager)
+            mq_listener_status_data=listener_status,
+            mqm=mq_manager)
         prometheus_data_list.append('{0}'.format(metric_data))
     add_annotation(prometheus_data_list, metrics_annotation['status'])
     prometheus_data_str = ''.join(prometheus_data_list)
@@ -48,6 +49,7 @@ def get_mq_listeners_metrics(listeners, mq_manager):
 
 
 def get_listeners(listeners_data):
+    """Converts input string with data to list with listeners, except default listener."""
     default_listener = r'SYSTEM.DEFAULT.LISTENER.TCP'
     listener_str_regexp = r'LISTENER\(([^)]+)\)'
     listeners = re.findall(listener_str_regexp, listeners_data)
@@ -58,14 +60,18 @@ def get_listeners(listeners_data):
 
 
 def get_listener_labels(labels):
-    labels_data = format_output(labels, 'labels')
+    """Executes format_output function for `labels` method."""
+    labels_data = format_output(
+        data_to_format=labels,
+        method='labels')
     return labels_data
 
 
 def format_output(data_to_format, method):
-    # Convert string to list,
-    # remove empty list elements and slice status data(elements 4-10),
-    # or labels data(elements 4-9), depending on function input
+    """Converts string to list.
+    Removes empty list elements and slices status data(elements 4-10) or
+    labels data(elements 4-9), depending on function input.
+    """
     slice_methods = {'labels': slice(4, 9), 'status': slice(4, 10)}
     format_list = list(filter(None, data_to_format.split('\n')))[slice_methods[method]]
     # Remove reduntant whitespaces from every list element and
@@ -82,11 +88,9 @@ def format_output(data_to_format, method):
     return result
 
 
-def get_listener_status(
-        listener_name=None,
-        mqm=None,
-        listener_data=None,
-        listener_labels=None):
+def get_listener_status(listener_data, listener_labels):
+    """Executes format_output function for `status` method.
+    Matches the listener's alphabetic status with a numeric one."""
     status_dict = {
         'STOPPED': 0,
         'STOPING': 1,
@@ -94,18 +98,22 @@ def get_listener_status(
         'RUNNING': 3}
     stop_flag = "not found"
     if stop_flag in listener_data:
-        labels_data = get_listener_labels(listener_labels)
+        labels_data = get_listener_labels(labels=listener_labels)
         labels_data['PID'] = ""
         labels_data['STARTTI'] = ""
         labels_data['STARTDA'] = ""
         labels_data['STATUS'] = status_dict['STOPPED']
         return labels_data
-    status_data = format_output(listener_data, 'status')
+    status_data = format_output(
+        data_to_format=listener_data,
+        method='status')
     status_data['STATUS'] = status_dict[status_data['STATUS']]
     return status_data
 
 
-def make_metric_for_mq_listener_status(listener_name, mq_listener_status_data, mqm):
+def make_metric_for_mq_listener_status(mq_listener_status_data, mqm):
+    """Returns parsed data for metrics.
+    Converts input dictionary with data to pushgateway formatted string."""
     template_string = 'qmname="{0}", listener="{1}", pid="{2}", ipadd="{3}", port="{4}", trptype="{5}", \
 control="{6}", backlog="{7}", startda="{8}", startti="{9}", desc="{10}"'.format(
         mqm,
@@ -120,7 +128,7 @@ control="{6}", backlog="{7}", startda="{8}", startti="{9}", desc="{10}"'.format(
         mq_listener_status_data["STARTTI"],
         mq_listener_status_data["DESCR"])
     metric_data = '{0}{{{1}}} {2}\n'.format(
-        get_metric_name('status'),
+        get_metric_name(metric_label='status'),
         template_string,
         mq_listener_status_data["STATUS"])
     return metric_data

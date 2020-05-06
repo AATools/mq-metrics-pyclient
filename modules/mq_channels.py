@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Various functions for MQ channels."""
 import re
 import time
 import datetime
@@ -12,10 +13,12 @@ logger = set_logger()
 
 
 def get_metric_name(metric_label):
+    """Returns pushgateway formatted metric name."""
     return 'mq_channel_{0}'.format(metric_label)
 
 
 def get_metric_annotation():
+    """Returns dictionary with annotations `HELP` and `TYPE` for metrics."""
     annotations = {
         'status': ['# HELP {0} Current status of MQ channel.\n\
 # TYPE {0} gauge\n'.format(get_metric_name('status')), 0],
@@ -33,11 +36,12 @@ def get_metric_annotation():
 
 
 def channels_status(mqm):
+    """Returns dictionary with channels data."""
     channels = run_mq_command(task='get_channels', mqm=mqm)
-    channels_list = get_channels(channels)
+    channels_list = get_channels(channel_data=channels)
     mq_channels_status = {}
     for channel in channels_list:
-        channel_name = extract_channel_name(channel)
+        channel_name = extract_channel_name(channel=channel)
         if channel_name:
             channel_data = run_mq_command(
                 task='get_chstatus',
@@ -50,56 +54,57 @@ def channels_status(mqm):
                     task='get_channel',
                     mqm=mqm,
                     channel=channel_name)
-                labels_data = format_channel_output(channel_labels)
+                labels_data = format_channel_output(data_to_format=channel_labels)
             else:
-                labels_data = format_channel_output(channel_data)
-            channel_status = get_channel_status(channel_data, labels_data)
+                labels_data = format_channel_output(data_to_format=channel_data)
+            channel_status = get_channel_status(channel_data=channel_data, labels_data=labels_data)
             mq_channels_status[channel_name] = channel_status
     return mq_channels_status
 
 
 def get_mq_channels_metrics(mq_channels, mq_manager):
+    """Returns string with all metrics which ready to push to pushgateway."""
     metrics_annotation = get_metric_annotation()
     prometheus_data_list = list(list() for i in range(len(metrics_annotation)))
     prometheus_data_list_result = list()
     for channels in mq_channels:
         for channel_data in mq_channels[channels]:
             metric_data_stat = make_metric_for_mq_channels_status(
-                channel_data,
-                mq_manager,
-                'status')
+                channel_data=channel_data,
+                mqm=mq_manager,
+                metric_type='status')
             prometheus_data_list[metrics_annotation['status'][1]].append(metric_data_stat)
             if not channel_data['STATUS']:
                 continue
             else:
                 metric_data_buffers_received = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'buffers_received')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='buffers_received')
                 metric_data_buffers_sent = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'buffers_sent')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='buffers_sent')
                 metric_data_bytes_received = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'bytes_received')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='bytes_received')
                 metric_data_bytes_sent = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'bytes_sent')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='bytes_sent')
                 metric_data_lmsg = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'lmsg')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='lmsg')
                 metric_data_msgs = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'msgs')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='msgs')
                 metric_data_batches = make_metric_for_mq_channels_status(
-                    channel_data,
-                    mq_manager,
-                    'batches')
+                    channel_data=channel_data,
+                    mqm=mq_manager,
+                    metric_type='batches')
                 prometheus_data_list[metrics_annotation['buffers'][1]].extend([
                     metric_data_buffers_received,
                     metric_data_buffers_sent])
@@ -117,12 +122,14 @@ def get_mq_channels_metrics(mq_channels, mq_manager):
 
 
 def get_channels(channels_data):
+    """Gets data with channel names from the input string."""
     channel_str_regexp = r'CHANNEL\([^)]*\)'
     result = re.findall(channel_str_regexp, channels_data)
     return result
 
 
 def extract_channel_name(channel):
+    """Extracts channel name. Hiddens default system channels."""
     channel_name_regexp = r'\(([^}]+)\)'
     # Hidden default system channels
     channel_system_default_regexp = r'SYSTEM.'
@@ -136,6 +143,7 @@ def extract_channel_name(channel):
 
 
 def get_template():
+    """Returns dictionary with labels template."""
     status_data_template = {
         'BATCHES': '',
         'BUFSRCVD': '',
@@ -159,7 +167,9 @@ def get_template():
 
 
 def get_channel_status(channel_data, labels_data):
-    status_data = []
+    """Maps input string with data on template labels.
+    Returns list with dictionaries, which contain parsed data."""
+    status_data = list()
     for i in range(channel_data.count("AMQ84")):
         status_data.append(get_template())
         for key in status_data[i]:
@@ -173,6 +183,9 @@ def get_channel_status(channel_data, labels_data):
 
 
 def format_channel_output(data_to_format):
+    """Searches `AMQ84` and `One MQSC`.
+    Searches for data between these labels according to the regular expression.
+    Returns list with data."""
     format_list = list(filter(None, data_to_format.split('\n')))
     nested_list = [re.split(r'\s{2,}', element.strip()) for element in format_list]
     flat_list = [item for sublist in nested_list for item in sublist]
@@ -202,6 +215,7 @@ def format_channel_output(data_to_format):
 
 
 def check_empty_value(value):
+    """Replaces an empty value with 0."""
     try:
         value = int(value)
     except ValueError:
@@ -210,6 +224,8 @@ def check_empty_value(value):
 
 
 def make_metric_for_mq_channels_status(channel_data, mqm, metric_type):
+    """Returns dictionary with all metrics for one channel in pushgateway format.
+    Converts input dictionary with data to pushgateway formatted string."""
     value_lmsg = ' '.join([channel_data['LSTMSGDA'], channel_data['LSTMSGTI']])
     try:
         metric_value_lmsg = time.mktime(datetime.datetime.strptime(value_lmsg, "%Y-%m-%d %H.%M.%S").timetuple())
