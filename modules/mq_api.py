@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+"""Various functions for client api."""
 import subprocess
 
 
 def run_mq_command(**kwargs):
+    """Calls predefined MQSC commands and returns their result."""
     command_mapping = {
         'get_channels': 'display channel (*)',
         'get_chstatus': 'display chstatus({0}) BATCHES BUFSRCVD BUFSSENT BYTSRCVD BYTSSENT CHSTADA CHSTATI JOBNAME LSTMSGDA LSTMSGTI MSGS',
@@ -35,6 +37,26 @@ def run_mq_command(**kwargs):
         command = mq_command
     if task_is_mq_manager_status:
         command = mq_command.format(mq_manager)
-    proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, universal_newlines=True)
+    proc = subprocess.Popen(command,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT,
+                            universal_newlines=True)
     output = proc.communicate()[0]
     return output
+
+
+def check_not_empty_list(lis1):
+    """Checks for empty list.
+    Returns 1 when the list is not empty."""
+    if not lis1:
+        return 0
+    else:
+        return 1
+
+
+def add_annotation(lis1, annotation):
+    """When the list is not empty inserts annotation at the top of the list."""
+    if check_not_empty_list(lis1):
+        lis1.insert(0, annotation)
+    return lis1
