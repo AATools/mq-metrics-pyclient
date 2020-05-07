@@ -58,6 +58,7 @@ def put_metric_to_gateway(metric_data, job):
 
 def main():
     start_time = time.time()
+    logger.info("Starting metrics collecting for IBM MQ!")
     try:
         mq_managers_data = run_mq_command(task='get_mq_managers')
         mq_managers = get_mq_managers(mq_managers_data=mq_managers_data)
