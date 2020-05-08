@@ -18,8 +18,8 @@ def run_mq_command(**kwargs):
         'get_queues_monitor': 'display qstatus(*) MONITOR'
     }
     task_is_mq_manager_status = False
-    mq_object = ''
-    mq_manager = ''
+    mq_object = str()
+    mq_manager = str()
     for arg_name, arg_value in kwargs.items():
         if arg_name == 'task':
             if arg_value == 'get_mq_manager_status':
@@ -37,13 +37,19 @@ def run_mq_command(**kwargs):
         command = mq_command
     if task_is_mq_manager_status:
         command = mq_command.format(mq_manager)
+    output = execute_command(command=command)
+    return output
+
+
+def execute_command(command):
+    """Executes in shell."""
     proc = subprocess.Popen(command,
                             shell=True,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT,
                             universal_newlines=True)
-    output = proc.communicate()[0]
-    return output
+    result = proc.communicate()[0]
+    return result
 
 
 def check_not_empty_list(lis1):
