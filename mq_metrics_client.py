@@ -78,18 +78,18 @@ def main():
                     mq_channels_metrics,
                     mq_queues_metrics,
                     mq_queues_metrics_monitor)
-                put_metric_to_gateway(metric_data, mq_manager)
+                put_metric_to_gateway(metric_data=metric_data, job=mq_manager)
                 logger.info("All metrics pushed successfully!")
             else:
                 put_metric_to_gateway(metric_data=mq_manager_metrics, job=mq_manager)
                 logger.warning("Pushed only metric for mq_manager!")
+        logger.info("Script finished in - {0} seconds -".format(time.time() - start_time))
     except PrometheusBadResponse as error:
         logger.error(error)
     except Exception as err:
         tb = sys.exc_info()[-1]
         stk = traceback.extract_tb(tb, 1)[0]
         logger.error("Function: {0}\n{1}".format(stk, err))
-    logger.info("Script finished in - {0} seconds -".format(time.time() - start_time))
 
 
 if __name__ == "__main__":
