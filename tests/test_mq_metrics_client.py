@@ -64,7 +64,7 @@ class MockFunction():
         return 'MQ queue is ok'
 
     @staticmethod
-    def mock_put_metric_to_gateway(metric_data, job):
+    def mock_put_metric_to_gateway(metric_data, job, pushgateway_host, pushgateway_port):
         """Mock for `put_metric_to_gateway` function."""
         pass
 
