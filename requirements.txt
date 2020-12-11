@@ -1,7 +1,8 @@
-discover==0.4.0 
-requests==2.22.0
-urllib3==1.25.7
-pytest==4.3.1
-pytest-cov==2.8.1
-coverage==4.5.4
-coveralls==1.9.2 
+discover
+requests
+urllib3
+pytest
+pytest-cov
+coverage
+coveralls 
+argparse

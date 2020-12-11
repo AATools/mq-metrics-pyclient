@@ -5,6 +5,7 @@ import time
 import traceback
 import platform
 import requests
+import argparse
 from requests import ConnectionError
 from urllib3.exceptions import ResponseError
 from modules.mq_manager import (
@@ -33,15 +34,22 @@ class PrometheusBadResponse(Exception):
 def static_content():
     """Client name and version."""
     name = "mq-metrics-pyclient"
-    version = "0.4"
+    version = "0.5"
     return '{0} v.{1}'.format(name, version)
 
 
-def put_metric_to_gateway(metric_data, job):
+def parse_commandline_args():
+    """Parse command-line arguments."""
+    parser = argparse.ArgumentParser(prog='mq_metrics_client.py')
+    parser.add_argument('--pghost', metavar='pushgatewayHost', nargs='?', default=platform.node(), dest='pushgateway_host', help='pushgateway host')
+    parser.add_argument('--pgport', metavar='pushgatewayPort', nargs='?', default='9091', dest='pushgateway_port', help='pushgateway port')
+    args = parser.parse_args()
+    return args.pushgateway_host, args.pushgateway_port
+
+
+def put_metric_to_gateway(metric_data, job, pushgateway_host, pushgateway_port):
     """Sends data to Prometheus pushgateway."""
-    hostname = platform.node()
-    port = 9091
-    src_url = "http://{0}:{1}".format(hostname, port)
+    src_url = "http://{0}:{1}".format(pushgateway_host, pushgateway_port)
     headers = {"Content-Type": "text/plain; version=0.0.4"}
     dest_url = "{0}/metrics/job/{1}".format(src_url, job)
     logger.info("Destination url: {0}".format(dest_url))
@@ -56,7 +64,7 @@ def put_metric_to_gateway(metric_data, job):
         raise PrometheusBadResponse("{0} is not available!".format(dest_url))
 
 
-def main():
+def get_mq_metrics(pushgateway_host, pushgateway_port):
     start_time = time.time()
     logger.info("Starting metrics collecting for IBM MQ!")
     try:
@@ -78,10 +86,18 @@ def main():
                     mq_channels_metrics,
                     mq_queues_metrics,
                     mq_queues_metrics_monitor)
-                put_metric_to_gateway(metric_data=metric_data, job=mq_manager)
+                put_metric_to_gateway(
+                    metric_data=metric_data,
+                    job=mq_manager,
+                    pushgateway_host=pushgateway_host,
+                    pushgateway_port=pushgateway_port)
                 logger.info("All metrics pushed successfully!")
             else:
-                put_metric_to_gateway(metric_data=mq_manager_metrics, job=mq_manager)
+                put_metric_to_gateway(
+                    metric_data=mq_manager_metrics,
+                    job=mq_manager,
+                    pushgateway_host=pushgateway_host,
+                    pushgateway_port=pushgateway_port)
                 logger.warning("Pushed only metric for mq_manager!")
         logger.info("Script finished in - {0} seconds -".format(time.time() - start_time))
     except PrometheusBadResponse as error:
@@ -94,6 +110,9 @@ def main():
 
 if __name__ == "__main__":
     logger.info("Run {0}".format(static_content()))
+    pushgateway_host, pushgateway_port = parse_commandline_args()
     while True:
-        main()
+        get_mq_metrics(
+            pushgateway_host=pushgateway_host,
+            pushgateway_port=pushgateway_port)
         time.sleep(15)
