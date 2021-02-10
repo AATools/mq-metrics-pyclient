@@ -3,10 +3,7 @@
 import os
 import sys
 import unittest
-try:
-    from unittest.mock import patch
-except ImportError:
-    from mock import patch
+from unittest.mock import patch
 from modules.mq_api import (
     run_mq_command,
     check_not_empty_list,
