@@ -2,10 +2,10 @@
 
 [![Actions Status](https://github.com/AATools/mq-metrics-pyclient/workflows/GitHub%20CI/badge.svg)](https://github.com/AATools/mq-metrics-pyclient/actions) [![Coverage Status](https://coveralls.io/repos/github/AATools/mq-metrics-pyclient/badge.svg?branch=master)](https://coveralls.io/github/AATools/mq-metrics-pyclient?branch=master)
 
-This is  python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway).
+This is python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway).
 The collected metrics can be explored in Prometheus or Grafana. This client is useful in cases when requiring to collect metrics from old MQ versions.
 
-The metrics are collected using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. So, you need to install `IBM MQ server`.
+The metrics are collected by using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. The metrics are collected for **all local** MQ managers. You need to run `mq_metrics_client` in the same host where `IBM MQ server` was installed.
 
 Tested for IBM MQ v7.5, v8, v9 and Python 3.6, 3.7 on Linux.
 
@@ -58,12 +58,12 @@ nohup python3 mq_metrics_client.py &
 
 After that, you should set up your Prometheus server to collect metrics from Pushgateway (`http://<hostname>:9091/metrics`).
 
-You can specify `host` and `port` for pushgateway via command-line arguments.
+Via command-line arguments you can specify `host` and `port` for remote pushgateway or just `port` for pushgateway on non-default port.
 
 ```bash
 python3 mq_metrics_client.py -h
 
-usage: mq_metrics_client.py [-h] [--pghost [pushgatewayHost]] [--pgport [pushgatewayPort]]
+usage: mq_metrics_client.py [-h] [--pghost [pushgatewayHost]] [--pgport [pushgatewayPort]] [--collectint [collectInterval]]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -71,6 +71,8 @@ optional arguments:
                         pushgateway host
   --pgport [pushgatewayPort]
                         pushgateway port
+  --collectint [collectInterval]
+                        time interval between collecting metrics
 ```
 
 If argument is not set the default value is used.
@@ -79,6 +81,7 @@ If argument is not set the default value is used.
 |:---|:---|:---|
 | `pghost` | Pushgateway host | Hostname on which client is started.<br> Value define via `platform.node()`. |
 | `pgport` | Pushgateway port | `9091` |
+| `collectint` | Time interval between collecting metrics | `15` <br> Time in seconds. |
 
 ## Grafana dashboard
 
