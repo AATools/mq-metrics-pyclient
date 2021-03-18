@@ -34,7 +34,7 @@ class PrometheusBadResponse(Exception):
 def static_content():
     """Client name and version."""
     name = "mq-metrics-pyclient"
-    version = "0.5"
+    version = "0.6"
     return '{0} v.{1}'.format(name, version)
 
 
