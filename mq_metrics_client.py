@@ -43,8 +43,9 @@ def parse_commandline_args():
     parser = argparse.ArgumentParser(prog='mq_metrics_client.py')
     parser.add_argument('--pghost', metavar='pushgatewayHost', nargs='?', default=platform.node(), dest='pushgateway_host', help='pushgateway host')
     parser.add_argument('--pgport', metavar='pushgatewayPort', nargs='?', default='9091', dest='pushgateway_port', help='pushgateway port')
+    parser.add_argument('--collectint', metavar='collectInterval', nargs='?', default=15, type=int, dest='sleep_interval', help='time interval between collecting metrics')
     args = parser.parse_args()
-    return args.pushgateway_host, args.pushgateway_port
+    return args.pushgateway_host, args.pushgateway_port, abs(args.sleep_interval)
 
 
 def put_metric_to_gateway(metric_data, job, pushgateway_host, pushgateway_port):
@@ -110,9 +111,10 @@ def get_mq_metrics(pushgateway_host, pushgateway_port):
 
 if __name__ == "__main__":
     logger.info("Run {0}".format(static_content()))
-    pushgateway_host, pushgateway_port = parse_commandline_args()
+    pushgateway_host, pushgateway_port, sleep_interval = parse_commandline_args()
+    logger.info("Metrics will be collected every {0} seconds".format(sleep_interval))
     while True:
         get_mq_metrics(
             pushgateway_host=pushgateway_host,
             pushgateway_port=pushgateway_port)
-        time.sleep(15)
+        time.sleep(sleep_interval)

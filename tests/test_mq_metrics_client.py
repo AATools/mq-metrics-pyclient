@@ -175,6 +175,7 @@ class TestStaticContent(unittest.TestCase):
 class TestParseCommandlineArgs(unittest.TestCase):
     pushgateway_host = 'testhost'
     pushgateway_port = '9091'
+    sleep_interval = 15
 
     Mocked = MockFunction()
     @patch('mq_metrics_client.logger.info', side_effect=Mocked.mock_logging_info)
@@ -182,12 +183,27 @@ class TestParseCommandlineArgs(unittest.TestCase):
         'argparse.ArgumentParser.parse_args',
         return_value=argparse.Namespace(
             pushgateway_host= pushgateway_host,
-            pushgateway_port= pushgateway_port))
+            pushgateway_port= pushgateway_port,
+            sleep_interval= sleep_interval))
     def test_parse_commandline_args(self, mock_logging_info, mock_args):
         """Test for `parse_commandline_args` function."""
         self.assertEqual(
             parse_commandline_args(), 
-            (self.pushgateway_host, self.pushgateway_port))
+            (self.pushgateway_host, self.pushgateway_port, self.sleep_interval))
+
+
+    @patch('mq_metrics_client.logger.info', side_effect=Mocked.mock_logging_info)
+    @patch(
+        'argparse.ArgumentParser.parse_args',
+        return_value=argparse.Namespace(
+            pushgateway_host= pushgateway_host,
+            pushgateway_port= pushgateway_port,
+            sleep_interval= -15))
+    def test_parse_commandline_args_is_negative_15(self, mock_logging_info, mock_args):
+        """Test for `parse_commandline_args` function for `sleep_interval` is `-15`."""
+        self.assertEqual(
+            parse_commandline_args(), 
+            (self.pushgateway_host, self.pushgateway_port, self.sleep_interval))
 
 
 if __name__ == '__main__':
