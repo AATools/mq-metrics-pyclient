@@ -11,7 +11,7 @@ Tested for IBM MQ v7.5, v8, v9 and Python 3.6, 3.7 on Linux.
 
 ## Collected metrics
 
-By default, metrics are collected every 15 seconds. Via command-line argument `--collectint` you can specify interval between collecting metrics.
+By default, metrics are collected every 15 seconds.
 
 The metrics provided by the client:
 
@@ -58,7 +58,7 @@ nohup python3 mq_metrics_client.py &
 
 After that, you should set up your Prometheus server to collect metrics from Pushgateway (`http://<hostname>:9091/metrics`).
 
-Via command-line arguments you can specify `host` and `port` for remote pushgateway or just `port` for pushgateway on non-default port.
+You can specify `host` and `port` for pushgateway and time interval in seconds between collecting metrics via command-line arguments.
 
 ```bash
 python3 mq_metrics_client.py -h
