@@ -5,13 +5,13 @@
 This is python client for collecting IBM MQ metrics and exporting to [Prometheus pushgateway](https://github.com/prometheus/pushgateway).
 The collected metrics can be explored in Prometheus or Grafana. This client is useful in cases when requiring to collect metrics from old MQ versions.
 
-The metrics are collected by using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. The metrics are collected for **all local** MQ managers. You need to run `mq_metrics_client` in the same host where `IBM MQ server` was installed.
+The metrics are collected by using standard [`MQSC`](https://www.ibm.com/support/knowledgecenter/en/SSFKSJ_7.5.0/com.ibm.mq.ref.adm.doc/q085130_.htm) commands. The metrics are collected for **all local** MQ managers. You need to run `MQ metrics pyclient` in the same host where `IBM MQ server` was installed.
 
 Tested for IBM MQ v7.5, v8, v9 and Python 3.6, 3.7 on Linux.
 
 ## Collected metrics
 
-By default, metrics are collected every 15 seconds.
+By default, metrics are collected every 15 seconds. Via command-line argument `--collectint` you can specify interval between collecting metrics.
 
 The metrics provided by the client:
 
