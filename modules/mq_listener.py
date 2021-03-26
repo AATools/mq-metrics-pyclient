@@ -23,7 +23,7 @@ def get_metric_annotation():
     return annotations
 
 
-def get_mq_listeners_metrics(listeners, mq_manager):
+def get_mq_listeners_metrics(listeners, mq_manager, ssh_connect_string=None):
     """Returns string with status listeners metrics which ready to push to pushgateway."""
     metrics_annotation = get_metric_annotation()
     prometheus_data_list = list()
@@ -31,11 +31,13 @@ def get_mq_listeners_metrics(listeners, mq_manager):
         listener_data = run_mq_command(
             task='get_lsstatus',
             mqm=mq_manager,
-            listener=listener)
+            listener=listener,
+            ssh_connect_string=ssh_connect_string)
         listener_labels = run_mq_command(
             task='get_listener',
             mqm=mq_manager,
-            listener=listener)
+            listener=listener,
+            ssh_connect_string=ssh_connect_string)
         listener_status = get_listener_status(
             listener_data=listener_data,
             listener_labels=listener_labels)

@@ -35,9 +35,9 @@ def get_metric_annotation():
     return annotations
 
 
-def channels_status(mqm):
+def channels_status(mqm, ssh_connect_string=None):
     """Returns dictionary with channels data."""
-    channels = run_mq_command(task='get_channels', mqm=mqm)
+    channels = run_mq_command(task='get_channels', mqm=mqm, ssh_connect_string=ssh_connect_string)
     channels_list = get_channels(channels_data=channels)
     mq_channels_status = {}
     for channel in channels_list:
@@ -46,14 +46,16 @@ def channels_status(mqm):
             channel_data = run_mq_command(
                 task='get_chstatus',
                 mqm=mqm,
-                channel=channel_name)
+                channel=channel_name,
+                ssh_connect_string=ssh_connect_string)
             labels_data = []
             stop_flag = "not found"
             if stop_flag in channel_data:
                 channel_labels = run_mq_command(
                     task='get_channel',
                     mqm=mqm,
-                    channel=channel_name)
+                    channel=channel_name,
+                    ssh_connect_string=ssh_connect_string)
                 labels_data = format_channel_output(data_to_format=channel_labels)
             else:
                 labels_data = format_channel_output(data_to_format=channel_data)

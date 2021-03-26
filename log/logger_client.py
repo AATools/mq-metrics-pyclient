@@ -8,10 +8,11 @@ from logging.handlers import RotatingFileHandler
 def set_logger():
     """Sets logger."""
     logs_dir = os.getenv("METRICS_LOGS_PATH")
+    logs_instance = os.getenv("METRICS_LOGS_INSTANCE", None)
     if logs_dir:
-        log_path = os.path.join(logs_dir, 'mq_client.log')
+        log_path = os.path.join(logs_dir, 'mq_client_{0}.log'.format(logs_instance if logs_instance is not None else ''))
     else:
-        log_path = os.path.join('log', 'mq_client.log')
+        log_path = os.path.join('log', 'mq_client_{0}.log'.format(logs_instance if logs_instance is not None else ''))
     # It means DEBUG level - https://docs.python.org/2.7/library/logging.html#levels
     log_level = 10
     logger = logging.getLogger("mq_client_logger")

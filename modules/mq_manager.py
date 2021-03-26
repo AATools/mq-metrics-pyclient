@@ -21,13 +21,13 @@ def get_metric_annotation():
     return annotations
 
 
-def get_mq_manager_metrics(mq_manager):
+def get_mq_manager_metrics(mq_manager, ssh_connect_string=None, compatible=None):
     """Returns string with status manager metric which ready to push to pushgateway
     and numeric status value."""
     metrics_annotation = get_metric_annotation()
-    mq_manager_data = run_mq_command(task='get_mq_manager_status', mqm=mq_manager)
+    mq_manager_data = run_mq_command(task='get_mq_manager_status', mqm=mq_manager, ssh_connect_string=ssh_connect_string)
     mqm_status_data = get_mq_manager_status(mq_manager_data=mq_manager_data)
-    metric_data, status = make_metric_for_mq_manager_status(mq_manager_status_data=mqm_status_data)
+    metric_data, status = make_metric_for_mq_manager_status(mq_manager_status_data=mqm_status_data, compatible=compatible)
     metric_data = '{0}{1}'.format(
         metrics_annotation['status'],
         metric_data)
@@ -73,17 +73,27 @@ def get_mq_managers(mq_managers_data):
     return mq_managers
 
 
-def make_metric_for_mq_manager_status(mq_manager_status_data):
+def make_metric_for_mq_manager_status(mq_manager_status_data, compatible=None):
     """Returns parsed data for metrics and numeric status value.
     Converts input dictionary with data to pushgateway formatted string."""
-    template_string = 'default="{0}", instname="{1}", instpath="{2}", instver="{3}", \
+
+    if compatible == "v7.0":
+        template_string = 'default="{0}", \
+qmname="{1}", standby="{2}"'.format(
+            mq_manager_status_data["DEFAULT"],
+            mq_manager_status_data["QMNAME"],
+            mq_manager_status_data["STANDBY"])
+    else:
+        template_string = 'default="{0}", instname="{1}", instpath="{2}", instver="{3}", \
 qmname="{4}", standby="{5}"'.format(
-        mq_manager_status_data["DEFAULT"],
-        mq_manager_status_data["INSTNAME"],
-        mq_manager_status_data["INSTPATH"],
-        mq_manager_status_data["INSTVER"],
-        mq_manager_status_data["QMNAME"],
-        mq_manager_status_data["STANDBY"])
+            mq_manager_status_data["DEFAULT"],
+            mq_manager_status_data["INSTNAME"],
+            mq_manager_status_data["INSTPATH"],
+            mq_manager_status_data["INSTVER"],
+            mq_manager_status_data["QMNAME"],
+            mq_manager_status_data["STANDBY"])
+
+
     metric_data = '{0}{{{1}}} {2}\n'.format(
         get_metric_name(metric_label='status'),
         template_string,

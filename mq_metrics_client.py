@@ -44,8 +44,10 @@ def parse_commandline_args():
     parser.add_argument('--pghost', metavar='pushgatewayHost', nargs='?', default=platform.node(), dest='pushgateway_host', help='pushgateway host')
     parser.add_argument('--pgport', metavar='pushgatewayPort', nargs='?', default='9091', dest='pushgateway_port', help='pushgateway port')
     parser.add_argument('--collectint', metavar='collectInterval', nargs='?', default=15, type=int, dest='sleep_interval', help='time interval between collecting metrics')
+    parser.add_argument('--ssh_connect_string', metavar='ssh_connect_string', nargs='?', dest='ssh_connect_string', default=None, help='user@host to connect to with ssh')
+    parser.add_argument('--compatible', metavar='compatible', nargs='?', dest='compatible', default=None, choices=['v7.0', None], help='v7.0 for MQv7.0')
     args = parser.parse_args()
-    return args.pushgateway_host, args.pushgateway_port, abs(args.sleep_interval)
+    return args.pushgateway_host, args.pushgateway_port, abs(args.sleep_interval), args.ssh_connect_string, args.compatible
 
 
 def put_metric_to_gateway(metric_data, job, pushgateway_host, pushgateway_port):
@@ -65,22 +67,22 @@ def put_metric_to_gateway(metric_data, job, pushgateway_host, pushgateway_port):
         raise PrometheusBadResponse("{0} is not available!".format(dest_url))
 
 
-def get_mq_metrics(pushgateway_host, pushgateway_port):
+def get_mq_metrics(pushgateway_host, pushgateway_port, ssh_connect_string=None, compatible=None):
     start_time = time.time()
     logger.info("Starting metrics collecting for IBM MQ!")
     try:
-        mq_managers_data = run_mq_command(task='get_mq_managers')
+        mq_managers_data = run_mq_command(task='get_mq_managers', ssh_connect_string=ssh_connect_string)
         mq_managers = get_mq_managers(mq_managers_data=mq_managers_data)
         for mq_manager in mq_managers:
-            mq_manager_metrics, status = get_mq_manager_metrics(mq_manager=mq_manager)
+            mq_manager_metrics, status = get_mq_manager_metrics(mq_manager=mq_manager, ssh_connect_string=ssh_connect_string, compatible=compatible)
             if status == 1:
-                listeners_data = run_mq_command(task='get_listeners', mqm=mq_manager)
+                listeners_data = run_mq_command(task='get_listeners', mqm=mq_manager, ssh_connect_string=ssh_connect_string)
                 listeners = get_listeners(listeners_data=listeners_data)
-                mq_listeners_metrics = get_mq_listeners_metrics(listeners=listeners, mq_manager=mq_manager)
-                mq_channels = channels_status(mqm=mq_manager)
+                mq_listeners_metrics = get_mq_listeners_metrics(listeners=listeners, mq_manager=mq_manager, ssh_connect_string=ssh_connect_string)
+                mq_channels = channels_status(mqm=mq_manager, ssh_connect_string=ssh_connect_string)
                 mq_channels_metrics = get_mq_channels_metrics(mq_channels=mq_channels, mq_manager=mq_manager)
-                mq_queues_metrics = get_queues_metrics(mq_manager=mq_manager)
-                mq_queues_metrics_monitor = get_queues_metrics_monitor(mq_manager=mq_manager)
+                mq_queues_metrics = get_queues_metrics(mq_manager=mq_manager, ssh_connect_string=ssh_connect_string)
+                mq_queues_metrics_monitor = get_queues_metrics_monitor(mq_manager=mq_manager, ssh_connect_string=ssh_connect_string)
                 metric_data = '{0}{1}{2}{3}{4}'.format(
                     mq_manager_metrics,
                     mq_listeners_metrics,
@@ -111,10 +113,12 @@ def get_mq_metrics(pushgateway_host, pushgateway_port):
 
 if __name__ == "__main__":
     logger.info("Run {0}".format(static_content()))
-    pushgateway_host, pushgateway_port, sleep_interval = parse_commandline_args()
+    pushgateway_host, pushgateway_port, sleep_interval, ssh_connect_string, compatible = parse_commandline_args()
     logger.info("Metrics will be collected every {0} seconds".format(sleep_interval))
     while True:
         get_mq_metrics(
             pushgateway_host=pushgateway_host,
-            pushgateway_port=pushgateway_port)
+            pushgateway_port=pushgateway_port,
+            ssh_connect_string=ssh_connect_string,
+            compatible=compatible)
         time.sleep(sleep_interval)

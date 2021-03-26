@@ -41,17 +41,17 @@ def get_metric_annotation_monitor():
     return annotations
 
 
-def get_queues_metrics(mq_manager):
+def get_queues_metrics(mq_manager, ssh_connect_string=None):
     """Returns string with all main queues metrics which ready to push to pushgateway."""
-    queue_labels_data = run_mq_command(task='get_queues', mqm=mq_manager)
+    queue_labels_data = run_mq_command(task='get_queues', mqm=mq_manager, ssh_connect_string=ssh_connect_string)
     queues_labels = get_queues_labels(queue_labels_data=queue_labels_data)
     queues_metrics = make_metrics_data_for_queues(queues_labels=queues_labels, mq_manager=mq_manager)
     return queues_metrics
 
 
-def get_queues_metrics_monitor(mq_manager):
+def get_queues_metrics_monitor(mq_manager, ssh_connect_string=None):
     """Returns string with all real-time monitoring metrics which ready to push to pushgateway."""
-    queue_labels_data_monitor = run_mq_command(task='get_queues_monitor', mqm=mq_manager)
+    queue_labels_data_monitor = run_mq_command(task='get_queues_monitor', mqm=mq_manager, ssh_connect_string=ssh_connect_string)
     queues_labels_monitor = get_queues_labels_monitor(queue_labels_data=queue_labels_data_monitor)
     queues_metrics_monitor = make_metrics_data_for_queues_monitor(queues_labels=queues_labels_monitor, mq_manager=mq_manager)
     return queues_metrics_monitor
